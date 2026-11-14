@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mr. Young · 7th Grade ELAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body>
+<nav><a class="logo" href="index.html"><div class="mark">AJ</div>Anson Jones Middle School</a>
+<ul><li class="on"><a href="index.html">Home</a></li><li><a href="assignments.html">Assignments</a></li><li>Weekly News</li><li>Coming Up</li><li>Families</li></ul></nav>
+<section class="hero"><div>
+<div class="eyebrow">Welcome, families</div>
+<h1>7th Grade <span class="grad">English Language Arts &amp; Reading</span></h1>
+<p>Welcome to our class page! Here you can find information about each assignment, what it requires, when it's due, and what to do to get it done.</p>
+<div class="btns"><a class="btn p" href="assignments.html">This week's assignments →</a><a class="btn s" href="#about">Meet Mr. Young</a></div>
+</div>
+<div class="visual"><div class="blob"></div><div class="photo"><img id="teacherPhoto" src="images/teacher.jpg" alt="Mr. Young" style="width:100%;height:100%;object-fit:cover;border-radius:22px" onerror="this.replaceWith('Your photo')"></div>
+<div class="chip c1"><span><i class="dot" style="background:#c9971c"></i><span id="nextDue">Next up</span></span><b id="nextTitle">Nothing due yet</b></div>
+<div class="chip c2"><span><i class="dot" style="background:#f5c518"></i>This week</span><b>Now reading: <span id="nowReading">coming soon</span></b></div></div></section>
+<div class="notice"><div class="i">📌</div><div><h2>Your window into our classroom</h2>
+<p>Here you'll find your child's assignments and what each one asks for, our weekly news, and what's coming up next. Check back often, and thank you for being part of our reading and writing community!</p></div></div>
+<section class="grid">
+<div class="card"><div class="n">01</div><h3>Assignments</h3><p>What it is, what's required, the due date, and an example.</p><div class="bar" style="background:#c9971c"></div></div>
+<div class="card"><div class="n">02</div><h3>Weekly News</h3><p>What we're reading, class wins, and reminders.</p><div class="bar" style="background:#f5c518"></div></div>
+<div class="card"><div class="n">03</div><h3>Coming Up</h3><p>Due dates and events on one calendar.</p><div class="bar" style="background:#0a0a0a"></div></div>
+<div class="card"><div class="n">04</div><h3>Families</h3><p>Tips for helping at home, in English y en español.</p><div class="bar" style="background:#8a6a12"></div></div>
+</section>
+<footer><span>Anson Jones Middle School · 7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
+<script type="module">
+import {loadAssignments,loadSettings,todayStr,fmtDue,esc} from "./fb.js";
+try{
+  const [list,set]=await Promise.all([loadAssignments(),loadSettings()]);
+  const next=list.find(a=>a.due>=todayStr());
+  if(next){document.getElementById("nextTitle").textContent=next.title;document.getElementById("nextDue").textContent=next.type+" · Due "+fmtDue(next.due);}
+  if(set.nowReading) document.getElementById("nowReading").textContent=set.nowReading;
+  if(set.photoUrl){const p=document.getElementById("teacherPhoto"); if(p) p.src=set.photoUrl; else document.querySelector(".photo").innerHTML=`<img src="${esc(set.photoUrl)}" alt="Mr. Young" style="width:100%;height:100%;object-fit:cover;border-radius:22px">`;}
+}catch(e){console.warn(e)}
+</script>
+</body></html>

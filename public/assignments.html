@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assignments · Mr. Young</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body>
+<nav><a class="logo" href="index.html"><div class="mark">AJ</div>Anson Jones Middle School</a>
+<ul><li><a href="index.html">Home</a></li><li class="on"><a href="assignments.html">Assignments</a></li><li>Weekly News</li><li>Coming Up</li><li>Families</li></ul></nav>
+<main class="page">
+<div class="eyebrow">7th Grade ELA/R</div>
+<h1>Assignments</h1>
+<p class="sub">Everything your child is working on, what it requires, and when it's due.</p>
+<div class="filters" id="filters"></div>
+<div class="alist" id="list"><div class="empty">Loading assignments…</div></div>
+<h2 style="font-family:'Space Grotesk';margin:40px 0 14px;font-size:22px" id="pastHead" hidden>Past assignments</h2>
+<div class="alist" id="past"></div>
+</main>
+<footer><span>Anson Jones Middle School · 7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
+<script type="module">
+import {loadAssignments,cardHTML,todayStr,TYPES} from "./fb.js";
+let all=[],filter="All";
+const F=document.getElementById("filters");
+function draw(){
+  F.innerHTML=["All",...TYPES].map(t=>`<button class="f ${t===filter?"on":""}" data-t="${t}">${t==="All"?"All":t}</button>`).join("");
+  const t=todayStr(), pick=all.filter(a=>filter==="All"||a.type===filter);
+  const up=pick.filter(a=>a.due>=t), past=pick.filter(a=>a.due<t).reverse();
+  document.getElementById("list").innerHTML=up.length?up.map(cardHTML).join(""):'<div class="empty">Nothing due right now. Check back soon!</div>';
+  document.getElementById("past").innerHTML=past.map(cardHTML).join("");
+  document.getElementById("pastHead").hidden=!past.length;
+}
+F.addEventListener("click",e=>{const b=e.target.closest("[data-t]"); if(b){filter=b.dataset.t; draw();}});
+try{ all=await loadAssignments(); }catch(e){ console.warn(e); }
+draw();
+</script>
+</body></html>
