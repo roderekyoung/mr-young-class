@@ -73,3 +73,21 @@ export function modalHTML(a){
     ${a.fileUrl?`<a class="dl" href="${esc(a.fileUrl)}" target="_blank" rel="noopener">📄 Download blank copy</a>`:'<div style="height:20px"></div>'}
   </div></div>`;
 }
+
+export function rowHTML(a){
+  return `<tr class="r r-${esc(a.type)}" data-id="${esc(a.id)}" tabindex="0"><td>${esc(a.title)}</td><td><span class="badge b-${esc(a.type)}">${esc(a.type)}</span></td><td><span class="due ${dueClass(a.due)}">${fmtDue(a.due)}</span></td><td class="pts">${a.points?esc(a.points):"—"}</td></tr>`;
+}
+function previewUrl(u){ const m=String(u||"").match(/\/file\/d\/([^/]+)/); return m?`https://drive.google.com/file/d/${m[1]}/preview`:u; }
+export function detailHTML(a){
+  const q=a.quarter||1;
+  return `<div class="modal-bg" id="mbg"><div class="modal wide" role="dialog" aria-modal="true" style="--tc:var(--c-${esc(a.type)})">
+    <div class="mh"><div><span class="badge b-${esc(a.type)}">${esc(a.type)}</span><h2 style="margin-top:10px">${esc(a.title)}</h2></div><button class="x" aria-label="Close" id="mx">×</button></div>
+    <div class="mbody">
+      <div class="doc">${a.fileUrl?`<iframe src="${esc(previewUrl(a.fileUrl))}" title="Blank copy of ${esc(a.title)}"></iframe><a href="${esc(a.fileUrl)}" target="_blank" rel="noopener">📄 Open / download blank copy</a>`:'<div class="none">No blank copy posted for this assignment.</div>'}</div>
+      <div class="side">
+        <div class="facts"><div><small>Due</small><b>${fmtDue(a.due)}</b></div><div><small>Points</small><b>${a.points?esc(a.points):"—"}</b></div><div><small>Type</small><b>${esc(a.type)}</b></div><div><small>Grading period</small><b>${q}${["","st","nd","rd","th"][q]} Nine Weeks</b></div></div>
+        <div class="about"><h4>What it's about</h4><p>${a.details?esc(a.details):"Details coming soon."}</p></div>
+      </div>
+    </div>
+  </div></div>`;
+}

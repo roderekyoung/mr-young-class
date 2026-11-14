@@ -7,16 +7,16 @@
 <main class="page">
 <div class="eyebrow">7th Grade ELA/R</div>
 <h1>Assignments</h1>
-<p class="sub">What we're working on each nine weeks. Tap any assignment for details and a blank copy.</p>
+<p class="sub">What we're working on each nine weeks. Click any assignment to see the blank copy and what it's about.</p>
 <div class="qtabs" id="qtabs"></div>
 <div id="overview"></div>
 <div class="legend" id="legend"></div>
-<div class="alist" id="list"><div class="empty">Loading assignments…</div></div>
+<div id="list"><div class="empty">Loading assignments…</div></div>
 <div id="modal"></div>
 </main>
 <footer><span>Anson Jones Middle School · 7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadAssignments,loadSettings,tileHTML,modalHTML,TYPES,QUARTERS,esc} from "./fb.js";
+import {loadAssignments,loadSettings,rowHTML,detailHTML,TYPES,QUARTERS,esc} from "./fb.js";
 let all=[], set={}, q=1, filter="All";
 try{ [all,set]=await Promise.all([loadAssignments(),loadSettings()]); }catch(e){ console.warn(e); }
 q=Number(new URLSearchParams(location.search).get("q"))||Number(set.currentQuarter)||1;
@@ -27,12 +27,12 @@ function draw(){
   $("overview").innerHTML=ov?`<div class="overview"><b>This nine weeks</b>${esc(ov)}</div>`:"";
   $("legend").innerHTML=["All",...TYPES].map(t=>`<button class="f ${t===filter?"on":""}" data-t="${t}">${t==="All"?"":`<i style="background:var(--c-${t})"></i>`}${t}</button>`).join("");
   const list=all.filter(a=>(Number(a.quarter)||1)===q && (filter==="All"||a.type===filter));
-  $("list").innerHTML=list.length?list.map(tileHTML).join(""):'<div class="empty">Nothing posted for this nine weeks yet.</div>';
+  $("list").innerHTML=list.length?`<table class="atable"><thead><tr><th>Name</th><th>Type</th><th>Due date</th><th>Points</th></tr></thead><tbody>${list.map(rowHTML).join("")}</tbody></table>`:'<div class="empty">Nothing posted for this nine weeks yet.</div>';
 }
 document.addEventListener("click",e=>{
   const qt=e.target.closest("[data-q]"); if(qt){ q=Number(qt.dataset.q); draw(); return; }
   const ft=e.target.closest("[data-t]"); if(ft){ filter=ft.dataset.t; draw(); return; }
-  const tl=e.target.closest(".tile"); if(tl){ const a=all.find(x=>x.id===tl.dataset.id); $("modal").innerHTML=modalHTML(a); document.body.style.overflow="hidden"; return; }
+  const tl=e.target.closest("tr.r"); if(tl){ const a=all.find(x=>x.id===tl.dataset.id); $("modal").innerHTML=detailHTML(a); document.body.style.overflow="hidden"; return; }
   if(e.target.id==="mbg"||e.target.id==="mx"){ $("modal").innerHTML=""; document.body.style.overflow=""; }
 });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ $("modal").innerHTML=""; document.body.style.overflow=""; }});
