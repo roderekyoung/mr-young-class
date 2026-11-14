@@ -36,11 +36,23 @@
 import {app,db,TEACHER,TYPES,loadAssignments,loadSettings,fmtDue,esc} from "./fb.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {getStorage,ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
 $("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
 let editing=null, items=[];
-$("signin").onclick=async()=>{ $("authMsg").textContent=""; try{ await signInWithPopup(auth,new GoogleAuthProvider()); }catch(e){ $("authMsg").textContent="Sign-in didn't complete: "+e.code; } };
+function provider(){ const p=new GoogleAuthProvider(); p.addScope("https://www.googleapis.com/auth/drive.file"); return p; }
+function keepToken(res){ const c=GoogleAuthProvider.credentialFromResult(res); if(c&&c.accessToken) sessionStorage.setItem("gtok",JSON.stringify({t:c.accessToken,exp:Date.now()+50*60e3})); }
+async function driveToken(){
+  const s=JSON.parse(sessionStorage.getItem("gtok")||"null"); if(s&&s.exp>Date.now()) return s.t;
+  const res=await signInWithPopup(auth,provider()); keepToken(res); return JSON.parse(sessionStorage.getItem("gtok")).t;
+}
+async function gapi(tok,url,opts={}){ const r=await fetch(url,{...opts,headers:{Authorization:"Bearer "+tok,...(opts.headers||{})}}); if(!r.ok) throw new Error("Drive: "+r.status+" "+(await r.text()).slice(0,160)); return r.json(); }
+async function folderId(tok){
+  const q=encodeURIComponent("name='Mr. Young Class Site' and mimeType='application/vnd.google-apps.folder' and trashed=false");
+  const l=await gapi(tok,`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id)`);
+  if(l.files.length) return l.files[0].id;
+  return (await gapi(tok,"https://www.googleapis.com/drive/v3/files?fields=id",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:"Mr. Young Class Site",mimeType:"application/vnd.google-apps.folder"})})).id;
+}
+$("signin").onclick=async()=>{ $("authMsg").textContent=""; try{ keepToken(await signInWithPopup(auth,provider())); }catch(e){ $("authMsg").textContent="Sign-in didn't complete: "+e.code; } };
 $("signout").onclick=e=>{e.preventDefault(); signOut(auth);};
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
@@ -48,9 +60,14 @@ onAuthStateChanged(auth,async u=>{
   if(u){ $("who").textContent=u.email; refresh(); const s=await loadSettings(); $("nowReading").value=s.nowReading||""; }
 });
 async function upload(file){
-  const r=ref(getStorage(app),`uploads/${Date.now()}-${file.name.replace(/[^\w.\-]+/g,"_")}`);
-  await uploadBytes(r,file,{contentType:file.type||"application/octet-stream"});
-  return {fileUrl:await getDownloadURL(r), fileType:file.type||"", fileName:file.name};
+  const tok=await driveToken(), parent=await folderId(tok);
+  const form=new FormData();
+  form.append("metadata",new Blob([JSON.stringify({name:file.name,parents:[parent]})],{type:"application/json"}));
+  form.append("file",file);
+  const f=await gapi(tok,"https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType",{method:"POST",body:form});
+  await gapi(tok,`https://www.googleapis.com/drive/v3/files/${f.id}/permissions`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({role:"reader",type:"anyone"})});
+  const isImg=(file.type||"").startsWith("image/");
+  return {fileUrl:`https://drive.google.com/file/d/${f.id}/view`, imageUrl:isImg?`https://lh3.googleusercontent.com/d/${f.id}`:"", fileType:file.type||"", fileName:file.name};
 }
 async function refresh(){
   items=await loadAssignments();
@@ -77,7 +94,7 @@ $("aform").onsubmit=async e=>{
 $("sform").onsubmit=async e=>{
   e.preventDefault(); $("sMsg").textContent="Saving…";
   try{ const data={nowReading:$("nowReading").value.trim()}; const p=$("photo").files[0];
-    if(p) data.photoUrl=(await upload(p)).fileUrl;
+    if(p) data.photoUrl=(await upload(p)).imageUrl;
     await setDoc(doc(db,"settings","home"),data,{merge:true}); $("sMsg").textContent="Homepage updated!"; $("photo").value="";
   }catch(err){ console.error(err); $("sMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };

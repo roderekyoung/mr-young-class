@@ -37,7 +37,7 @@ export function cardHTML(a){
     <div class="meta"><span class="badge b-${esc(a.type)}">${esc(a.type)}</span><span class="due ${dueClass(a.due)}">Due ${fmtDue(a.due)}</span></div>
     <h3>${esc(a.title)}</h3>
     ${a.details?`<p>${esc(a.details)}</p>`:""}
-    ${a.fileUrl && isImg?`<img class="prev" src="${esc(a.fileUrl)}" alt="Example for ${esc(a.title)}">`:""}
+    ${a.fileUrl && isImg?`<img class="prev" src="${esc(a.imageUrl||a.fileUrl)}" alt="Example for ${esc(a.title)}">`:""}
     ${a.fileUrl?`<a class="file" href="${esc(a.fileUrl)}" target="_blank" rel="noopener">📎 See an example</a>`:""}
   </article>`;
 }
