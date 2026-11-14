@@ -10,7 +10,8 @@ export const app = initializeApp({
 });
 export const db = getFirestore(app);
 export const TEACHER = "roderek.young@gmail.com";
-export const TYPES = ["Homework","Classwork","Quiz","Test","Project"];
+export const TYPES = ["Classwork","Homework","Quiz","Test","Project"];
+export const QUARTERS = ["1st Nine Weeks","2nd Nine Weeks","3rd Nine Weeks","4th Nine Weeks"];
 export async function loadAssignments(){
   const snap = await getDocs(query(collection(db,"assignments"), orderBy("due")));
   return snap.docs.map(d => ({id:d.id, ...d.data()}));
@@ -55,4 +56,20 @@ export function newsHTML(n){
     ${n.fileUrl && isImg?`<img class="prev" src="${esc(n.imageUrl||n.fileUrl)}" alt="${esc(n.title)}">`:""}
     ${n.fileUrl && !isImg?`<a class="file" href="${esc(n.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(n.fileName||"Attachment")}</a>`:""}
   </article>`;
+}
+
+export function tileHTML(a){
+  return `<button class="tile" style="--tc:var(--c-${esc(a.type)})" data-id="${esc(a.id)}">
+    <div class="meta"><span class="badge b-${esc(a.type)}">${esc(a.type)}</span>${a.points?`<span class="pts">${esc(a.points)} pts</span>`:""}</div>
+    <h3>${esc(a.title)}</h3>
+    <span class="due ${dueClass(a.due)}">Due ${fmtDue(a.due)}</span>
+  </button>`;
+}
+export function modalHTML(a){
+  return `<div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true" style="--tc:var(--c-${esc(a.type)})">
+    <div class="mh"><div><span class="badge b-${esc(a.type)}">${esc(a.type)}</span><h2 style="margin-top:10px">${esc(a.title)}</h2></div><button class="x" aria-label="Close" id="mx">×</button></div>
+    <div class="facts"><div><small>Due</small><b>${fmtDue(a.due)}</b></div><div><small>Points</small><b>${a.points?esc(a.points):"—"}</b></div><div><small>Grading period</small><b>${esc((a.quarter||1))}${["","st","nd","rd","th"][a.quarter||1]} Nine Weeks</b></div></div>
+    ${a.details?`<div class="about"><h4>What it's about</h4><p>${esc(a.details)}</p></div>`:""}
+    ${a.fileUrl?`<a class="dl" href="${esc(a.fileUrl)}" target="_blank" rel="noopener">📄 Download blank copy</a>`:'<div style="height:20px"></div>'}
+  </div></div>`;
 }

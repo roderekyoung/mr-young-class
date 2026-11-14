@@ -62,7 +62,7 @@ nav li a{display:block}
 .acard h3{font-family:'Space Grotesk';font-size:21px}
 .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
 .badge{padding:4px 10px;border-radius:999px;font-weight:700;font-size:12px;letter-spacing:.03em}
-.b-Homework{background:#fff4cc;color:#7a5a00}.b-Classwork{background:#eef2f7;color:#334155}.b-Quiz{background:#ffe8d6;color:#9a3d00}.b-Test{background:#0a0a0a;color:#f5c518}.b-Project{background:#f3e8c4;color:#5c4400}
+.b-Classwork{background:#dbeafe;color:#1e40af}.b-Homework{background:#fef3c7;color:#854d0e}.b-Quiz{background:#ffedd5;color:#c2410c}.b-Test{background:#fee2e2;color:#b91c1c}.b-Project{background:#dcfce7;color:#15803d}
 .due{color:var(--muted);font-weight:600}.due.soon{color:#b45309}.due.past{color:#94a3b8}
 .acard p{font-size:15px;line-height:1.6;color:#334155;white-space:pre-wrap}
 .acard .file{margin-top:auto;display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--ink);color:#f5c518;font-weight:600;font-size:14px;width:max-content}
@@ -90,3 +90,32 @@ a.card{display:block;transition:transform .15s}a.card:hover{transform:translateY
 .ncard p{font-size:16px;line-height:1.7;color:#334155;white-space:pre-wrap}
 .ncard img.prev{width:100%;max-height:420px;object-fit:contain;background:#f6f3ea;border-radius:12px;border:1px solid var(--line)}
 .ncard .file{display:inline-flex;gap:8px;padding:10px 14px;border-radius:12px;background:var(--ink);color:#f5c518;font-weight:600;font-size:14px;width:max-content}
+
+:root{--c-Classwork:#2563eb;--c-Homework:#eab308;--c-Quiz:#f97316;--c-Test:#dc2626;--c-Project:#16a34a}
+.qtabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin:22px 0 18px;overflow-x:auto}
+.qtab{padding:12px 18px;font:inherit;font-weight:700;font-size:15px;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.qtab.on{color:var(--ink);border-color:#c9971c}
+.overview{background:var(--ink);color:#f5f1e6;border-radius:18px;padding:20px 24px;margin-bottom:18px;line-height:1.65;white-space:pre-wrap}
+.overview b{display:block;color:#f5c518;font-family:'Space Grotesk';font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.legend .f{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.tile{background:#fff;border:1px solid var(--line);border-left:7px solid var(--tc);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;cursor:pointer;text-align:left;font:inherit;transition:transform .12s,box-shadow .12s}
+.tile:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.07)}
+.tile h3{font-family:'Space Grotesk';font-size:18px;color:var(--ink)}
+.tile .meta{justify-content:space-between}
+.tile .pts{font-weight:700;color:var(--ink);font-size:13px}
+.modal-bg{position:fixed;inset:0;background:rgba(10,10,10,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
+.modal{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:88vh;overflow:auto;border-top:10px solid var(--tc)}
+.modal .mh{padding:22px 24px 6px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.modal h2{font-family:'Space Grotesk';font-size:26px;line-height:1.15}
+.modal .x{border:0;background:#f1f1f1;border-radius:50%;width:36px;height:36px;font-size:20px;cursor:pointer;flex:none}
+.modal .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 24px}
+.modal .facts div{background:#faf8f2;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.modal .facts small{display:block;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.modal .facts b{font-size:15px}
+.modal .about{padding:8px 24px 4px}
+.modal .about h4{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.modal .about p{line-height:1.7;color:#334155;white-space:pre-wrap}
+.modal .dl{display:flex;margin:16px 24px 24px;justify-content:center;padding:14px;border-radius:14px;background:var(--ink);color:#f5c518;font-weight:700}
+@media (max-width:520px){.modal .facts{grid-template-columns:1fr 1fr}.qtab{padding:10px 12px;font-size:14px}}

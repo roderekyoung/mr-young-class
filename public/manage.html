@@ -13,9 +13,10 @@
 <form class="form" id="aform">
 <h2 style="font-family:'Space Grotesk';font-size:22px" id="formTitle">Add an assignment</h2>
 <label>Title<input id="title" required maxlength="190" placeholder="e.g., Coat of Arms Project"></label>
-<div class="row"><label>Type<select id="type"></select></label><label>Due date<input id="due" type="date" required></label></div>
-<label>What it requires<textarea id="details" placeholder="What students need to do, materials, how it's graded…"></textarea></label>
-<label>Example file (optional: PDF, image, or document)<input id="file" type="file"></label>
+<div class="row"><label>Nine weeks<select id="quarter"><option value="1">1st Nine Weeks</option><option value="2">2nd Nine Weeks</option><option value="3">3rd Nine Weeks</option><option value="4">4th Nine Weeks</option></select></label><label>Type<select id="type"></select></label></div>
+<div class="row"><label>Due date<input id="due" type="date" required></label><label>Points<input id="points" type="number" min="0" max="1000" placeholder="e.g., 100"></label></div>
+<label>What it's about<textarea id="details" placeholder="What students need to do, materials, how it's graded…"></textarea></label>
+<label>Blank copy of the assignment (optional: PDF, Word, or image)<input id="file" type="file"></label>
 <p class="msg" id="curFile"></p>
 <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn p" type="submit" id="save">Save assignment</button><button class="btn s" type="button" id="cancel" hidden>Cancel edit</button></div>
 <p class="msg" id="formMsg"></p>
@@ -30,10 +31,15 @@
 <p class="msg" id="nMsg"></p>
 </form>
 <form class="form" id="sform">
-<h2 style="font-family:'Space Grotesk';font-size:22px">Homepage</h2>
+<h2 style="font-family:'Space Grotesk';font-size:22px">Nine weeks &amp; homepage</h2>
+<label>Current nine weeks (the tab families see first)<select id="currentQuarter"><option value="1">1st Nine Weeks</option><option value="2">2nd Nine Weeks</option><option value="3">3rd Nine Weeks</option><option value="4">4th Nine Weeks</option></select></label>
+<label>1st Nine Weeks overview<textarea id="q1" placeholder="What we're doing this nine weeks…"></textarea></label>
+<label>2nd Nine Weeks overview<textarea id="q2"></textarea></label>
+<label>3rd Nine Weeks overview<textarea id="q3"></textarea></label>
+<label>4th Nine Weeks overview<textarea id="q4"></textarea></label>
 <label>Now reading<input id="nowReading" maxlength="120" placeholder="e.g., Freak the Mighty"></label>
 <label>Your photo<input id="photo" type="file" accept="image/*"></label>
-<button class="btn p" type="submit">Save homepage</button>
+<button class="btn p" type="submit">Save</button>
 <p class="msg" id="sMsg"></p>
 </form>
 <h2 style="font-family:'Space Grotesk';font-size:22px;margin-bottom:12px">Your assignments</h2>
@@ -68,7 +74,7 @@ $("signout").onclick=e=>{e.preventDefault(); signOut(auth);};
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
   $("signedOut").hidden=!!u; $("signedIn").hidden=!u;
-  if(u){ $("who").textContent=u.email; refresh(); nrefresh(); const s=await loadSettings(); $("nowReading").value=s.nowReading||""; }
+  if(u){ $("who").textContent=u.email; refresh(); nrefresh(); const s=await loadSettings(); $("nowReading").value=s.nowReading||""; $("currentQuarter").value=String(s.currentQuarter||1); $("quarter").value=String(s.currentQuarter||1); for(const k of ["q1","q2","q3","q4"]) $(k).value=s[k]||""; }
 });
 async function upload(file){
   const tok=await driveToken(), parent=await folderId(tok);
@@ -82,20 +88,20 @@ async function upload(file){
 }
 async function refresh(){
   items=await loadAssignments();
-  $("mlist").innerHTML=items.length?items.slice().reverse().map(a=>`<div class="mrow"><div><b>${esc(a.title)}</b><br><small>${esc(a.type)} · Due ${fmtDue(a.due)}${a.fileName?" · 📎 "+esc(a.fileName):""}</small></div><div class="acts"><button data-e="${a.id}">Edit</button><button class="del" data-d="${a.id}">Delete</button></div></div>`).join(""):'<div class="empty">No assignments yet. Add your first one above.</div>';
+  $("mlist").innerHTML=items.length?items.slice().reverse().map(a=>`<div class="mrow"><div><b>${esc(a.title)}</b><br><small>${a.quarter||1}${["","st","nd","rd","th"][a.quarter||1]} 9 wks · ${esc(a.type)}${a.points?" · "+a.points+" pts":""} · Due ${fmtDue(a.due)}${a.fileName?" · 📎 "+esc(a.fileName):""}</small></div><div class="acts"><button data-e="${a.id}">Edit</button><button class="del" data-d="${a.id}">Delete</button></div></div>`).join(""):'<div class="empty">No assignments yet. Add your first one above.</div>';
 }
-function resetForm(){ editing=null; $("aform").reset(); $("formTitle").textContent="Add an assignment"; $("save").textContent="Save assignment"; $("cancel").hidden=true; $("curFile").textContent=""; }
+function resetForm(){ const keepQ=$("quarter").value; editing=null; $("aform").reset(); $("quarter").value=keepQ; $("formTitle").textContent="Add an assignment"; $("save").textContent="Save assignment"; $("cancel").hidden=true; $("curFile").textContent=""; }
 $("cancel").onclick=resetForm;
 $("mlist").onclick=async e=>{
   const ed=e.target.dataset.e, de=e.target.dataset.d;
-  if(ed){ const a=items.find(x=>x.id===ed); editing=a; $("title").value=a.title; $("type").value=a.type; $("due").value=a.due; $("details").value=a.details||"";
+  if(ed){ const a=items.find(x=>x.id===ed); editing=a; $("title").value=a.title; $("type").value=a.type; $("due").value=a.due; $("details").value=a.details||""; $("quarter").value=String(a.quarter||1); $("points").value=a.points||"";
     $("curFile").textContent=a.fileName?"Current file: "+a.fileName+" (choose a new one to replace it)":""; $("formTitle").textContent="Edit assignment"; $("save").textContent="Update assignment"; $("cancel").hidden=false; window.scrollTo({top:0,behavior:"smooth"}); }
   if(de){ const a=items.find(x=>x.id===de); if(confirm(`Delete "${a.title}"? This can't be undone.`)){ await deleteDoc(doc(db,"assignments",de)); refresh(); } }
 };
 $("aform").onsubmit=async e=>{
   e.preventDefault(); $("save").disabled=true; $("formMsg").textContent="Saving…";
   try{
-    const data={title:$("title").value.trim(),type:$("type").value,due:$("due").value,details:$("details").value.trim(),updated:serverTimestamp()};
+    const data={title:$("title").value.trim(),type:$("type").value,quarter:Number($("quarter").value),points:$("points").value?Number($("points").value):null,due:$("due").value,details:$("details").value.trim(),updated:serverTimestamp()};
     const f=$("file").files[0]; if(f) Object.assign(data,await upload(f));
     if(editing) await updateDoc(doc(db,"assignments",editing.id),data); else await addDoc(collection(db,"assignments"),data);
     $("formMsg").textContent="Saved! It's live on the site."; resetForm(); refresh();
@@ -129,9 +135,9 @@ $("nform").onsubmit=async e=>{
 };
 $("sform").onsubmit=async e=>{
   e.preventDefault(); $("sMsg").textContent="Saving…";
-  try{ const data={nowReading:$("nowReading").value.trim()}; const p=$("photo").files[0];
+  try{ const data={nowReading:$("nowReading").value.trim(),currentQuarter:Number($("currentQuarter").value),q1:$("q1").value.trim(),q2:$("q2").value.trim(),q3:$("q3").value.trim(),q4:$("q4").value.trim()}; const p=$("photo").files[0];
     if(p) data.photoUrl=(await upload(p)).imageUrl;
-    await setDoc(doc(db,"settings","home"),data,{merge:true}); $("sMsg").textContent="Homepage updated!"; $("photo").value="";
+    await setDoc(doc(db,"settings","home"),data,{merge:true}); $("sMsg").textContent="Saved!"; $("photo").value="";
   }catch(err){ console.error(err); $("sMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };
 </script>
