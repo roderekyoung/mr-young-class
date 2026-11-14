@@ -41,3 +41,18 @@ export function cardHTML(a){
     ${a.fileUrl?`<a class="file" href="${esc(a.fileUrl)}" target="_blank" rel="noopener">📎 See an example</a>`:""}
   </article>`;
 }
+
+export async function loadNews(){
+  const snap = await getDocs(query(collection(db,"news"), orderBy("week","desc")));
+  return snap.docs.map(d => ({id:d.id, ...d.data()}));
+}
+export function newsHTML(n){
+  const isImg = n.fileType && n.fileType.startsWith("image/");
+  return `<article class="ncard">
+    <div class="meta"><span class="badge b-Homework">Week of ${fmtDue(n.week)}</span></div>
+    <h3>${esc(n.title)}</h3>
+    ${n.body?`<p>${esc(n.body)}</p>`:""}
+    ${n.fileUrl && isImg?`<img class="prev" src="${esc(n.imageUrl||n.fileUrl)}" alt="${esc(n.title)}">`:""}
+    ${n.fileUrl && !isImg?`<a class="file" href="${esc(n.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(n.fileName||"Attachment")}</a>`:""}
+  </article>`;
+}

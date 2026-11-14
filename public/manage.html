@@ -3,7 +3,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">AJ</div>Anson Jones Middle School</a>
-<ul><li><a href="index.html">Home</a></li><li><a href="assignments.html">Assignments</a></li><li>Weekly News</li><li>Coming Up</li><li>Families</li></ul></nav>
+<ul><li><a href="index.html">Home</a></li><li><a href="assignments.html">Assignments</a></li><li><a href="news.html">Weekly News</a></li><li>Coming Up</li><li>Families</li></ul></nav>
 <main class="page">
 <div class="eyebrow">Teacher only</div>
 <h1>Manage</h1>
@@ -20,6 +20,15 @@
 <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn p" type="submit" id="save">Save assignment</button><button class="btn s" type="button" id="cancel" hidden>Cancel edit</button></div>
 <p class="msg" id="formMsg"></p>
 </form>
+<form class="form" id="nform">
+<h2 style="font-family:'Space Grotesk';font-size:22px" id="nformTitle">Post Weekly News</h2>
+<div class="row"><label>Headline<input id="ntitle" required maxlength="190" placeholder="e.g., Starting our poetry unit!"></label><label>Week of<input id="nweek" type="date" required></label></div>
+<label>Update<textarea id="nbody" placeholder="What we're reading, class wins, reminders…"></textarea></label>
+<label>Photo or flyer (optional)<input id="nfile" type="file"></label>
+<p class="msg" id="ncurFile"></p>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn p" type="submit" id="nsave">Post news</button><button class="btn s" type="button" id="ncancel" hidden>Cancel edit</button></div>
+<p class="msg" id="nMsg"></p>
+</form>
 <form class="form" id="sform">
 <h2 style="font-family:'Space Grotesk';font-size:22px">Homepage</h2>
 <label>Now reading<input id="nowReading" maxlength="120" placeholder="e.g., Freak the Mighty"></label>
@@ -29,11 +38,13 @@
 </form>
 <h2 style="font-family:'Space Grotesk';font-size:22px;margin-bottom:12px">Your assignments</h2>
 <div class="mlist" id="mlist"></div>
+<h2 style="font-family:'Space Grotesk';font-size:22px;margin:28px 0 12px">Your news posts</h2>
+<div class="mlist" id="nlist"></div>
 </div>
 </main>
 <footer><span>Anson Jones Middle School · 7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {app,db,TEACHER,TYPES,loadAssignments,loadSettings,fmtDue,esc} from "./fb.js";
+import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,fmtDue,esc} from "./fb.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
@@ -57,7 +68,7 @@ $("signout").onclick=e=>{e.preventDefault(); signOut(auth);};
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
   $("signedOut").hidden=!!u; $("signedIn").hidden=!u;
-  if(u){ $("who").textContent=u.email; refresh(); const s=await loadSettings(); $("nowReading").value=s.nowReading||""; }
+  if(u){ $("who").textContent=u.email; refresh(); nrefresh(); const s=await loadSettings(); $("nowReading").value=s.nowReading||""; }
 });
 async function upload(file){
   const tok=await driveToken(), parent=await folderId(tok);
@@ -90,6 +101,31 @@ $("aform").onsubmit=async e=>{
     $("formMsg").textContent="Saved! It's live on the site."; resetForm(); refresh();
   }catch(err){ console.error(err); $("formMsg").textContent="Couldn't save: "+(err.code||err.message); }
   $("save").disabled=false;
+};
+let nediting=null, news=[];
+function monday(){ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+$("nweek").value=monday();
+async function nrefresh(){
+  news=await loadNews();
+  $("nlist").innerHTML=news.length?news.map(n=>`<div class="mrow"><div><b>${esc(n.title)}</b><br><small>Week of ${fmtDue(n.week)}${n.fileName?" · 📎 "+esc(n.fileName):""}</small></div><div class="acts"><button data-e="${n.id}">Edit</button><button class="del" data-d="${n.id}">Delete</button></div></div>`).join(""):'<div class="empty">No news yet.</div>';
+}
+function nreset(){ nediting=null; $("nform").reset(); $("nweek").value=monday(); $("nformTitle").textContent="Post Weekly News"; $("nsave").textContent="Post news"; $("ncancel").hidden=true; $("ncurFile").textContent=""; }
+$("ncancel").onclick=nreset;
+$("nlist").onclick=async e=>{
+  const ed=e.target.dataset.e, de=e.target.dataset.d;
+  if(ed){ const n=news.find(x=>x.id===ed); nediting=n; $("ntitle").value=n.title; $("nweek").value=n.week; $("nbody").value=n.body||"";
+    $("ncurFile").textContent=n.fileName?"Current file: "+n.fileName+" (choose a new one to replace it)":""; $("nformTitle").textContent="Edit news post"; $("nsave").textContent="Update post"; $("ncancel").hidden=false; $("nform").scrollIntoView({behavior:"smooth"}); }
+  if(de){ const n=news.find(x=>x.id===de); if(confirm(`Delete "${n.title}"?`)){ await deleteDoc(doc(db,"news",de)); nrefresh(); } }
+};
+$("nform").onsubmit=async e=>{
+  e.preventDefault(); $("nsave").disabled=true; $("nMsg").textContent="Posting…";
+  try{
+    const data={title:$("ntitle").value.trim(),week:$("nweek").value,body:$("nbody").value.trim(),updated:serverTimestamp()};
+    const f=$("nfile").files[0]; if(f) Object.assign(data,await upload(f));
+    if(nediting) await updateDoc(doc(db,"news",nediting.id),data); else await addDoc(collection(db,"news"),data);
+    $("nMsg").textContent="Posted! It's live on Weekly News."; nreset(); nrefresh();
+  }catch(err){ console.error(err); $("nMsg").textContent="Couldn't post: "+(err.code||err.message); }
+  $("nsave").disabled=false;
 };
 $("sform").onsubmit=async e=>{
   e.preventDefault(); $("sMsg").textContent="Saving…";

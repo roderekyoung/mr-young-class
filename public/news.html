@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weekly News · Mr. Young</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body>
+<nav><a class="logo" href="index.html"><div class="mark">AJ</div>Anson Jones Middle School</a>
+<ul><li><a href="index.html">Home</a></li><li><a href="assignments.html">Assignments</a></li><li class="on"><a href="news.html">Weekly News</a></li><li>Coming Up</li><li>Families</li></ul></nav>
+<main class="page">
+<div class="eyebrow">7th Grade ELA/R</div>
+<h1>Weekly News</h1>
+<p class="sub">What we're reading, class wins, and reminders for the week.</p><br>
+<div class="nlist" id="list"><div class="empty">Loading news…</div></div>
+</main>
+<footer><span>Anson Jones Middle School · 7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
+<script type="module">
+import {loadNews,newsHTML} from "./fb.js";
+let items=[]; try{ items=await loadNews(); }catch(e){ console.warn(e); }
+document.getElementById("list").innerHTML=items.length?items.map(newsHTML).join(""):'<div class="empty">No news posted yet. Check back soon!</div>';
+</script>
+</body></html>

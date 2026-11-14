@@ -12,6 +12,13 @@ service cloud.firestore {
         && request.resource.data.due is string;
       allow delete: if isTeacher();
     }
+    match /news/{id} {
+      allow read: if true;
+      allow create, update: if isTeacher()
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() < 200
+        && request.resource.data.week is string;
+      allow delete: if isTeacher();
+    }
     match /settings/{id} {
       allow read: if true;
       allow write: if isTeacher();
