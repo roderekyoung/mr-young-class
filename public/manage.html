@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Manage · Mr. Young</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123b"></head><body>
+<link rel="stylesheet" href="style.css?v=20261123c"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
 <ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
 <main class="page">
@@ -37,7 +37,7 @@
 <div class="tpanel" id="tab-news" role="tabpanel" aria-labelledby="tabbtn-news" hidden>
 <form class="form" id="nform">
 <h2 style="font-family:'Space Grotesk';font-size:22px" id="nformTitle">Post Weekly News</h2>
-<div class="row"><label>Headline<input id="ntitle" required maxlength="190" placeholder="e.g., Starting our poetry unit!"></label><label>Week of<input id="nweek" type="date" required></label></div>
+<div class="row"><label>Headline<input id="ntitle" required maxlength="190" placeholder="e.g., Starting our poetry unit!"></label><label>Published date<input id="nweek" type="date" required></label></div>
 <label>Update<textarea id="nbody" placeholder="What we're reading, class wins, reminders…"></textarea></label>
 <label>Photo or flyer (optional)<input id="nfile" type="file"></label>
 <p class="msg" id="ncurFile"></p>
@@ -115,9 +115,9 @@ I'm about 6'4".</textarea></label>
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,esc} from "./fb.js?v=20261123b";
+import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,fmtPosted,newsDateInput,todayStr,esc,driveImgUrl} from "./fb.js?v=20261123c";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp,deleteField} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp,deleteField,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
 $("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
 let editing=null, items=[];
@@ -160,7 +160,7 @@ $("signout").onclick=e=>{e.preventDefault(); signOut(auth);};
 let homePhotoClear=false, meetPhotoClear=false;
 function showThumb(thumbId, emptyId, removeId, url){
   const thumb=$(thumbId), empty=$(emptyId), rm=$(removeId);
-  if(url){ thumb.src=url; thumb.hidden=false; empty.hidden=true; rm.hidden=false; }
+  if(url){ thumb.referrerPolicy="no-referrer"; thumb.src=driveImgUrl(url); thumb.hidden=false; empty.hidden=true; rm.hidden=false; }
   else { thumb.removeAttribute("src"); thumb.hidden=true; empty.hidden=false; rm.hidden=true; }
 }
 async function fillSettingsAndMeet(){
@@ -191,7 +191,7 @@ async function upload(file){
   const f=await gapi(tok,"https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType",{method:"POST",body:form});
   await gapi(tok,`https://www.googleapis.com/drive/v3/files/${f.id}/permissions`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({role:"reader",type:"anyone"})});
   const isImg=(file.type||"").startsWith("image/");
-  return {fileUrl:`https://drive.google.com/file/d/${f.id}/view`, imageUrl:isImg?`https://lh3.googleusercontent.com/d/${f.id}`:"", fileType:file.type||"", fileName:file.name};
+  return {fileUrl:`https://drive.google.com/file/d/${f.id}/view`, imageUrl:isImg?`https://drive.google.com/thumbnail?id=${f.id}&sz=w1600`:"", fileType:file.type||"", fileName:file.name};
 }
 async function refresh(){
   items=await loadAssignments();
@@ -216,24 +216,25 @@ $("aform").onsubmit=async e=>{
   $("save").disabled=false;
 };
 let nediting=null, news=[];
-function monday(){ const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-$("nweek").value=monday();
+$("nweek").value=todayStr();
 async function nrefresh(){
   news=await loadNews();
-  $("nlist").innerHTML=news.length?news.map(n=>`<div class="mrow"><div><b>${esc(n.title)}</b><br><small>Week of ${fmtDue(n.week)}${n.fileName?" · 📎 "+esc(n.fileName):""}</small></div><div class="acts"><button data-e="${n.id}">Edit</button><button class="del" data-d="${n.id}">Delete</button></div></div>`).join(""):'<div class="empty">No news yet.</div>';
+  $("nlist").innerHTML=news.length?news.map(n=>`<div class="mrow"><div><b>${esc(n.title)}</b><br><small>${fmtPosted(n)}${n.fileName?" · 📎 "+esc(n.fileName):""}</small></div><div class="acts"><button data-e="${n.id}">Edit</button><button class="del" data-d="${n.id}">Delete</button></div></div>`).join(""):'<div class="empty">No news yet.</div>';
 }
-function nreset(){ nediting=null; $("nform").reset(); $("nweek").value=monday(); $("nformTitle").textContent="Post Weekly News"; $("nsave").textContent="Post news"; $("ncancel").hidden=true; $("ncurFile").textContent=""; }
+function nreset(){ nediting=null; $("nform").reset(); $("nweek").value=todayStr(); $("nformTitle").textContent="Post Weekly News"; $("nsave").textContent="Post news"; $("ncancel").hidden=true; $("ncurFile").textContent=""; }
 $("ncancel").onclick=nreset;
 $("nlist").onclick=async e=>{
   const ed=e.target.dataset.e, de=e.target.dataset.d;
-  if(ed){ const n=news.find(x=>x.id===ed); nediting=n; $("ntitle").value=n.title; $("nweek").value=n.week; $("nbody").value=n.body||"";
+  if(ed){ const n=news.find(x=>x.id===ed); nediting=n; $("ntitle").value=n.title; $("nweek").value=newsDateInput(n); $("nbody").value=n.body||"";
     $("ncurFile").textContent=n.fileName?"Current file: "+n.fileName+" (choose a new one to replace it)":""; $("nformTitle").textContent="Edit news post"; $("nsave").textContent="Update post"; $("ncancel").hidden=false; $("nform").scrollIntoView({behavior:"smooth"}); }
   if(de){ const n=news.find(x=>x.id===de); if(confirm(`Delete "${n.title}"?`)){ await deleteDoc(doc(db,"news",de)); nrefresh(); } }
 };
 $("nform").onsubmit=async e=>{
   e.preventDefault(); $("nsave").disabled=true; $("nMsg").textContent="Posting…";
   try{
-    const data={title:$("ntitle").value.trim(),week:$("nweek").value,body:$("nbody").value.trim(),updated:serverTimestamp()};
+    const week=$("nweek").value; const [y,mo,d]=week.split("-").map(Number);
+    const data={title:$("ntitle").value.trim(),week,publishedAt:Timestamp.fromDate(new Date(y,mo-1,d,12,0,0)),body:$("nbody").value.trim(),updated:serverTimestamp()};
+    if(!nediting) data.createdAt=serverTimestamp();
     const f=$("nfile").files[0]; if(f) Object.assign(data,await upload(f));
     if(nediting) await updateDoc(doc(db,"news",nediting.id),data); else await addDoc(collection(db,"news"),data);
     $("nMsg").textContent="Posted! It's live on Weekly News."; nreset(); nrefresh();

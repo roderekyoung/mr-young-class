@@ -72,28 +72,65 @@ export function dueClass(due){
   return diff<=3 ? "soon" : "";
 }
 export function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+export function driveFileId(u){
+  const s=String(u||"");
+  const m=s.match(/\/file\/d\/([^/?#]+)/) || s.match(/[?&]id=([^&#]+)/) || s.match(/lh3\.googleusercontent\.com\/d\/([^?=#]+)/) || s.match(/\/d\/([^/?#]+)/);
+  return m?decodeURIComponent(m[1]):"";
+}
+export function driveImgUrl(...urls){
+  for(const u of urls){
+    const id=driveFileId(u);
+    if(id) return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`;
+    if(u) return u;
+  }
+  return "";
+}
 export function cardHTML(a){
   const isImg = a.fileType && a.fileType.startsWith("image/");
   return `<article class="acard">
     <div class="meta"><span class="badge b-${esc(a.type)}">${esc(a.type)}</span><span class="due ${dueClass(a.due)}">Due ${fmtDue(a.due)}</span></div>
     <h3>${esc(a.title)}</h3>
     ${a.details?`<p>${esc(a.details)}</p>`:""}
-    ${a.fileUrl && isImg?`<img class="prev" src="${esc(a.imageUrl||a.fileUrl)}" alt="Example for ${esc(a.title)}">`:""}
+    ${a.fileUrl && isImg?`<img class="prev" src="${esc(driveImgUrl(a.imageUrl,a.fileUrl))}" alt="Example for ${esc(a.title)}" referrerpolicy="no-referrer">`:""}
     ${a.fileUrl?`<a class="file" href="${esc(a.fileUrl)}" target="_blank" rel="noopener">📎 See an example</a>`:""}
   </article>`;
 }
 
+export function newsDateMs(n){
+  const ts = n.publishedAt || n.createdAt;
+  if(ts){
+    if(typeof ts.toDate === "function") return ts.toDate().getTime();
+    if(typeof ts.seconds === "number") return ts.seconds*1000;
+  }
+  if(n.week && /^\d{4}-\d{2}-\d{2}$/.test(n.week)){
+    const [y,m,d]=n.week.split("-").map(Number);
+    return new Date(y,m-1,d,12).getTime();
+  }
+  return 0;
+}
+export function newsDateInput(n){
+  const ms=newsDateMs(n);
+  if(!ms) return todayStr();
+  const dt=new Date(ms);
+  return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+}
+export function fmtPosted(n){
+  const ms=newsDateMs(n);
+  if(!ms) return "Posted";
+  return "Posted "+new Date(ms).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+}
 export async function loadNews(){
-  const snap = await getDocs(query(collection(db,"news"), orderBy("week","desc")));
-  return snap.docs.map(d => ({id:d.id, ...d.data()}));
+  const snap = await getDocs(collection(db,"news"));
+  return snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b)=>newsDateMs(b)-newsDateMs(a));
 }
 export function newsHTML(n){
   const isImg = n.fileType && n.fileType.startsWith("image/");
   return `<article class="ncard">
-    <div class="meta"><span class="badge b-Homework">Week of ${fmtDue(n.week)}</span></div>
+    <div class="meta"><span class="badge b-Homework">${esc(fmtPosted(n))}</span></div>
     <h3>${esc(n.title)}</h3>
     ${n.body?`<p>${esc(n.body)}</p>`:""}
-    ${n.fileUrl && isImg?`<img class="prev" src="${esc(n.imageUrl||n.fileUrl)}" alt="${esc(n.title)}">`:""}
+    ${n.fileUrl && isImg?`<img class="prev" src="${esc(driveImgUrl(n.imageUrl,n.fileUrl))}" alt="${esc(n.title)}" referrerpolicy="no-referrer">`:""}
     ${n.fileUrl && !isImg?`<a class="file" href="${esc(n.fileUrl)}" target="_blank" rel="noopener">📎 ${esc(n.fileName||"Attachment")}</a>`:""}
   </article>`;
 }

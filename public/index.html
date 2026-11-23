@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mr. Young · 7th Grade ELAR</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123b"></head><body>
+<link rel="stylesheet" href="style.css?v=20261123c"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
 <ul><li class="on"><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
 <section class="hero"><div>
@@ -11,7 +11,7 @@
 <div class="btns"><a class="btn p" href="assignments.html">This week's assignments →</a><a class="btn s" href="meet.html" data-nav="meet">Meet Mr. Young</a></div>
 </div>
 <div class="visual"><div class="hero-panel">
-  <div class="photo" id="homePhotoWrap"><img id="teacherPhoto" src="images/teacher.jpg" alt="Mr. Young" onerror="this.replaceWith(document.createTextNode('Your photo'))"></div>
+  <div class="photo" id="homePhotoWrap"><img id="teacherPhoto" src="images/teacher.jpg" alt="Mr. Young" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('Your photo'))"></div>
   <div class="hero-cards">
     <a class="hero-card" href="assignments.html" id="nextCard">
       <div class="hero-kicker"><i class="dot" style="background:#c5b358"></i>Next up</div>
@@ -35,7 +35,7 @@
 </section>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadAssignments,loadSettings,loadNav,applyNav,todayStr,fmtDue,esc} from "./fb.js?v=20261123b";
+import {loadAssignments,loadSettings,loadNav,applyNav,todayStr,fmtDue,esc,driveImgUrl} from "./fb.js?v=20261123c";
 try{
   const [list,set,nav]=await Promise.all([loadAssignments(),loadSettings(),loadNav()]);
   applyNav(nav);
@@ -48,7 +48,7 @@ try{
   }
   if(set.nowReading) document.getElementById("nowReading").textContent=set.nowReading;
   if(set.nowReadingNote){const n=document.getElementById("nowReadingNote"); n.textContent=set.nowReadingNote; n.hidden=false;}
-  if(set.photoUrl){const p=document.getElementById("teacherPhoto"); if(p) p.src=set.photoUrl; else document.querySelector(".photo").innerHTML=`<img src="${esc(set.photoUrl)}" alt="Mr. Young">`;}
+  if(set.photoUrl){const src=driveImgUrl(set.photoUrl); const p=document.getElementById("teacherPhoto"); if(p){ p.referrerPolicy="no-referrer"; p.src=src; } else document.querySelector(".photo").innerHTML=`<img src="${esc(src)}" alt="Mr. Young" referrerpolicy="no-referrer">`;}
 }catch(e){console.warn(e)}
 </script>
 </body></html>

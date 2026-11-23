@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Meet Mr. Young · 7th Grade ELAR</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123b"></head><body data-nav-page="meet">
+<link rel="stylesheet" href="style.css?v=20261123c"></head><body data-nav-page="meet">
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
 <ul><li><a href="index.html" data-nav="home">Home</a></li><li class="on"><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
 <main class="page">
@@ -69,7 +69,7 @@
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadMeet,loadSettings,loadNav,applyNav,esc} from "./fb.js?v=20261123b";
+import {loadMeet,loadSettings,loadNav,applyNav,esc,driveImgUrl} from "./fb.js?v=20261123c";
 const setText=(id,val)=>{ if(val) document.getElementById(id).textContent=val; };
 try{
   const [meet,set,nav]=await Promise.all([loadMeet(),loadSettings(),loadNav()]);
@@ -84,11 +84,11 @@ try{
     const lines=meet.funFacts.split("\n").map(s=>s.trim()).filter(Boolean);
     if(lines.length) document.getElementById("meetFacts").innerHTML=lines.map(l=>`<li>${esc(l)}</li>`).join("");
   }
-  const photo=meet.photoUrl||set.photoUrl;
+  const photo=driveImgUrl(meet.photoUrl,set.photoUrl);
   if(photo){
     const wrap=document.getElementById("meetPhotoWrap");
     wrap.classList.add("ph");
-    wrap.innerHTML=`<img id="teacherPhoto" src="${esc(photo)}" alt="Mr. Young" onload="this.parentElement.classList.remove('ph')" onerror="this.remove();document.getElementById('meetPhotoWrap').classList.add('ph')">
+    wrap.innerHTML=`<img id="teacherPhoto" src="${esc(photo)}" alt="Mr. Young" referrerpolicy="no-referrer" onload="this.parentElement.classList.remove('ph')" onerror="this.remove();document.getElementById('meetPhotoWrap').classList.add('ph')">
     <div class="ph-label"><span class="ph-mark">MY</span>Mr. Young</div>`;
   }
 }catch(e){console.warn(e)}
