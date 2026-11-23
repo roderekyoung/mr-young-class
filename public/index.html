@@ -23,7 +23,7 @@
 </section>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadAssignments,loadSettings,loadNav,applyNav,todayStr,fmtDue,esc} from "./fb.js";
+import {loadAssignments,loadSettings,loadNav,applyNav,todayStr,fmtDue,esc} from "./fb.js?v=20261123";
 try{
   const [list,set,nav]=await Promise.all([loadAssignments(),loadSettings(),loadNav()]);
   applyNav(nav);

@@ -16,7 +16,7 @@
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadAssignments,loadSettings,loadNav,applyNav,rowHTML,detailHTML,TYPES,QUARTERS,esc} from "./fb.js";
+import {loadAssignments,loadSettings,loadNav,applyNav,rowHTML,detailHTML,TYPES,QUARTERS,esc} from "./fb.js?v=20261123";
 let all=[], set={}, q=1, filter="All";
 try{ [all,set,nav]=await Promise.all([loadAssignments(),loadSettings(),loadNav()]); applyNav(nav); }catch(e){ console.warn(e); }
 q=Number(new URLSearchParams(location.search).get("q"))||Number(set.currentQuarter)||1;

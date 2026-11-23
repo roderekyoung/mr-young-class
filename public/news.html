@@ -12,7 +12,7 @@
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadNews,loadNav,applyNav,newsHTML} from "./fb.js";
+import {loadNews,loadNav,applyNav,newsHTML} from "./fb.js?v=20261123";
 let items=[]; try{ const [newsItems,nav]=await Promise.all([loadNews(),loadNav()]); items=newsItems; applyNav(nav); }catch(e){ console.warn(e); }
 document.getElementById("list").innerHTML=items.length?items.map(newsHTML).join(""):'<div class="empty">No news posted yet. Check back soon!</div>';
 </script>
