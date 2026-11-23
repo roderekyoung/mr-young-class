@@ -25,8 +25,25 @@ export async function loadMeet(){
   const s = await getDoc(doc(db,"settings","meet"));
   return s.exists() ? s.data() : {};
 }
+export async function loadResources(){
+  try{
+    const s = await getDoc(doc(db,"settings","resources"));
+    return s.exists() ? s.data() : {};
+  }catch(e){
+    console.warn("resources settings unavailable", e);
+    return {};
+  }
+}
+export function safeLink(url){
+  const u=String(url||"").trim();
+  if(!u) return "";
+  if(u==="#") return "#";
+  if(/^https?:\/\//i.test(u)) return u;
+  if(/^mailto:/i.test(u)) return u;
+  return "";
+}
 export const NAV_KEYS = ["home","meet","assignments","news","coming","families"];
-export const NAV_DEFAULTS = {home:"Home",meet:"Meet Mr. Young",assignments:"Assignments",news:"Weekly News",coming:"Calendar",families:"Families"};
+export const NAV_DEFAULTS = {home:"Home",meet:"Meet Mr. Young",assignments:"Assignments",news:"Weekly News",coming:"Calendar",families:"Parent Resources"};
 export async function loadNav(){
   try{
     const s = await getDoc(doc(db,"settings","nav"));
@@ -61,6 +78,7 @@ export function applyNav(nav){
     else if(page==="assignments") titleEl.textContent=labels.assignments+" · Mr. Young";
     else if(page==="news") titleEl.textContent=labels.news+" · Mr. Young";
     else if(page==="coming") titleEl.textContent=labels.coming+" · Mr. Young";
+    else if(page==="families") titleEl.textContent=labels.families+" · Mr. Young";
   }
 }
 export function todayStr(){ const t=new Date(); return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0"); }

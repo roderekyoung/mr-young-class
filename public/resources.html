@@ -1,0 +1,126 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parent Resources · Mr. Young</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261123f"></head><body data-nav-page="families">
+<nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
+<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li><a href="calendar.html" data-nav="coming">Calendar</a></li><li class="on"><a href="resources.html" data-nav="families">Parent Resources</a></li></ul></nav>
+<main class="page">
+<div class="eyebrow">7th Grade ELA/R</div>
+<h1 data-nav-heading="families">Parent Resources</h1>
+<p class="sub">How to reach me, how our class works, and ways you can help at home.</p>
+<div id="resEmpty" class="empty" hidden>Nothing posted here yet. Check back soon!</div>
+<div class="res-grid" id="resGrid" hidden>
+  <article class="mcard wide" id="sec-contact" hidden>
+    <div class="n">01</div>
+    <h2>Contact Mr. Young</h2>
+    <div class="res-contact" id="contactBody"></div>
+    <div class="bar" style="background:#c5b358"></div>
+  </article>
+  <article class="mcard" id="sec-policies" hidden>
+    <div class="n">02</div>
+    <h2>Class Policies</h2>
+    <p id="policiesBody"></p>
+    <div class="bar" style="background:#d4c27a"></div>
+  </article>
+  <article class="mcard" id="sec-supplies" hidden>
+    <div class="n">03</div>
+    <h2>Supply List</h2>
+    <ul id="suppliesBody"></ul>
+    <div class="bar" style="background:#6e6128"></div>
+  </article>
+  <article class="mcard wide" id="sec-help" hidden>
+    <div class="n">04</div>
+    <h2>Helping at Home</h2>
+    <p id="helpBody"></p>
+    <div class="bar" style="background:#c5b358"></div>
+  </article>
+  <article class="mcard wide" id="sec-links" hidden>
+    <div class="n">05</div>
+    <h2>Helpful Links</h2>
+    <ul class="res-links" id="linksBody"></ul>
+    <div class="bar" style="background:#0a0a0a"></div>
+  </article>
+  <article class="mcard wide" id="sec-conf" hidden>
+    <div class="n">06</div>
+    <h2>Conferences</h2>
+    <div id="confBody"></div>
+    <div class="bar" style="background:#d4c27a"></div>
+  </article>
+</div>
+</main>
+<footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
+<script type="module">
+import {loadResources,loadNav,applyNav,esc,safeLink} from "./fb.js?v=20261123f";
+
+function hasText(s){ return String(s||"").trim().length>0; }
+function lines(s){ return String(s||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean); }
+function contactOn(c){ c=c||{}; return hasText(c.email)||hasText(c.hours)||hasText(c.reply); }
+function linksOn(list){ return Array.isArray(list) && list.some(l=>hasText(l&&l.label)||hasText(l&&l.url)); }
+function confOn(c){ c=c||{}; return hasText(c.url)||hasText(c.note); }
+
+function looksLikeEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s||"").trim()); }
+
+function show(id, on){ const el=document.getElementById(id); if(el) el.hidden=!on; }
+
+try{
+  const [raw, nav]=await Promise.all([loadResources(), loadNav()]);
+  applyNav(nav);
+  let data=raw||{};
+  const c=data.contact||{};
+  let any=false;
+  if(contactOn(c)){
+    any=true;
+    const bits=[];
+    if(hasText(c.email)){
+      const em=c.email.trim();
+      const val=looksLikeEmail(em)?`<a href="mailto:${esc(em)}">${esc(em)}</a>`:esc(em);
+      bits.push(`<div class="res-item"><span class="res-k">Email</span><span>${val}</span></div>`);
+    }
+    if(hasText(c.hours)) bits.push(`<div class="res-item"><span class="res-k">Best times to reach me</span><span>${esc(c.hours)}</span></div>`);
+    if(hasText(c.reply)) bits.push(`<div class="res-item"><span class="res-k">Typical reply time</span><span>${esc(c.reply)}</span></div>`);
+    document.getElementById("contactBody").innerHTML=bits.join("");
+    show("sec-contact", true);
+  }
+  if(hasText(data.policies)){
+    any=true;
+    document.getElementById("policiesBody").textContent=data.policies.trim();
+    show("sec-policies", true);
+  }
+  if(hasText(data.supplies)){
+    any=true;
+    document.getElementById("suppliesBody").innerHTML=lines(data.supplies).map(l=>`<li>${esc(l)}</li>`).join("");
+    show("sec-supplies", true);
+  }
+  if(hasText(data.helpAtHome)){
+    any=true;
+    document.getElementById("helpBody").textContent=data.helpAtHome.trim();
+    show("sec-help", true);
+  }
+  if(linksOn(data.links)){
+    any=true;
+    document.getElementById("linksBody").innerHTML=data.links.map(l=>{
+      const label=hasText(l.label)?l.label.trim():(l.url||"Link");
+      const href=safeLink(l.url);
+      if(href) return `<li><a href="${esc(href)}" ${href!=="#"?'target="_blank" rel="noopener"':""}>${esc(label)}</a></li>`;
+      return `<li>${esc(label)}</li>`;
+    }).join("");
+    show("sec-links", true);
+  }
+  if(confOn(data.conferences)){
+    any=true;
+    const cf=data.conferences||{};
+    const href=safeLink(cf.url);
+    const note=hasText(cf.note)?`<p>${esc(cf.note)}</p>`:"";
+    const btn=href?`<p><a class="btn p" href="${esc(href)}" ${href!=="#"?'target="_blank" rel="noopener"':""}>Conference sign-up</a></p>`:"";
+    document.getElementById("confBody").innerHTML=note+btn;
+    show("sec-conf", true);
+  }
+  show("resGrid", any);
+  show("resEmpty", !any);
+}catch(e){
+  console.warn(e);
+  document.getElementById("resEmpty").hidden=false;
+  document.getElementById("resEmpty").textContent="We couldn't load this page just now. Please try again in a moment.";
+}
+</script>
+</body></html>

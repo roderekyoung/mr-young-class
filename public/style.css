@@ -270,3 +270,24 @@ a.card{display:block;transition:transform .15s}a.card:hover{transform:translateY
 }
 
 #monthView[hidden],#listView[hidden],#monthNav[hidden]{display:none!important}
+
+
+/* Parent Resources */
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.res-contact{display:grid;gap:14px}
+.res-item{display:grid;gap:4px}
+.res-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8c7b2f}
+.res-item span:last-child,.res-item a{font-size:15px;line-height:1.6;color:#334155}
+.res-item a{font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:#c5b358;text-underline-offset:3px}
+.res-links{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.res-links li a{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--ink);padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#fbfaf6}
+.res-links li a:hover{border-color:#c5b358;background:#fff}
+.res-links li a::before{content:"";width:8px;height:8px;border-radius:50%;background:#c5b358;flex:none}
+#sec-conf .btn{margin-top:8px;display:inline-block;width:max-content}
+.linkrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px}
+.linkrow input{font:inherit;font-weight:400;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfaf6}
+.linkrow .rm{border:1px solid var(--line);background:#fff;border-radius:10px;padding:11px 12px;cursor:pointer;font:inherit;font-size:13px;color:#b91c1c;height:42px}
+@media (max-width:700px){
+  .res-grid{grid-template-columns:1fr}
+  .linkrow{grid-template-columns:1fr}
+}

@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en"><head><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Manage · Mr. Young</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123e"></head><body>
+<link rel="stylesheet" href="style.css?v=20261123f"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
-<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li><a href="calendar.html" data-nav="coming">Calendar</a></li><li data-nav="families">Families</li></ul></nav>
+<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li><a href="calendar.html" data-nav="coming">Calendar</a></li><li><a href="resources.html" data-nav="families">Parent Resources</a></li></ul></nav>
 <main class="page">
 <div class="eyebrow">Teacher only</div>
 <h1>Manage</h1>
@@ -16,6 +16,7 @@
 <button class="mtab" type="button" role="tab" id="tabbtn-coming" data-tab="coming" data-nav="coming" aria-controls="tab-coming" aria-selected="false">Calendar</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-homepage" data-tab="homepage" aria-controls="tab-homepage" aria-selected="false">Homepage</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-meet" data-tab="meet" data-nav="meet" aria-controls="tab-meet" aria-selected="false">Meet Mr. Young</button>
+<button class="mtab" type="button" role="tab" id="tabbtn-families" data-tab="families" data-nav="families" aria-controls="tab-families" aria-selected="false">Parent Resources</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-nav" data-tab="nav" aria-controls="tab-nav" aria-selected="false">Site Tabs</button>
 </div>
 
@@ -112,6 +113,30 @@ I'm about 6'4".</textarea></label>
 </form>
 </div>
 
+<div class="tpanel" id="tab-families" role="tabpanel" aria-labelledby="tabbtn-families" hidden>
+<form class="form" id="rform">
+<h2 style="font-family:'Space Grotesk';font-size:22px" data-nav-heading="families">Parent Resources</h2>
+<p class="sub" style="margin:0 0 6px;font-weight:400">Edit the sections families see on the Parent Resources page. Leave a section blank to hide it.</p>
+<h3 style="font-family:'Space Grotesk';font-size:16px;margin:6px 0 0">Contact Mr. Young</h3>
+<label>Email<input id="rEmail" maxlength="120" placeholder="[your school email]"></label>
+<label>Best times to reach me<input id="rHours" maxlength="200" placeholder="e.g., School days, 7:45–8:15 a.m."></label>
+<label>Typical reply time<input id="rReply" maxlength="200" placeholder="e.g., Within one school day"></label>
+<label>Class Policies<textarea id="rPolicies" placeholder="Late work, makeup work, grading categories, and absences…"></textarea></label>
+<label>Supply list (one item per line)<textarea id="rSupplies" placeholder="Composition notebook&#10;Pencils"></textarea></label>
+<label>Helping at home<textarea id="rHelp" placeholder="Short reading and writing tips for families…"></textarea></label>
+<div>
+  <div style="font-weight:600;font-size:14px;margin-bottom:8px">Helpful links</div>
+  <div id="rLinks"></div>
+  <button type="button" class="btn s" id="rAddLink">Add a link</button>
+</div>
+<h3 style="font-family:'Space Grotesk';font-size:16px;margin:6px 0 0">Conferences</h3>
+<label>Sign-up link (optional)<input id="rConfUrl" maxlength="300" placeholder="https://…"></label>
+<label>Note (optional)<textarea id="rConfNote" placeholder="Dates, how to sign up, or a reminder when conferences are coming."></textarea></label>
+<button class="btn p" type="submit">Save Parent Resources</button>
+<p class="msg" id="rMsg"></p>
+</form>
+</div>
+
 <div class="tpanel" id="tab-nav" role="tabpanel" aria-labelledby="tabbtn-nav" hidden>
 <form class="form" id="navform">
 <h2 style="font-family:'Space Grotesk';font-size:22px">Site Tabs</h2>
@@ -121,7 +146,7 @@ I'm about 6'4".</textarea></label>
 <label>Assignments<input id="nav-assignments" maxlength="40" placeholder="Assignments"></label>
 <label>Weekly News<input id="nav-news" maxlength="40" placeholder="Weekly News"></label>
 <label>Calendar<input id="nav-coming" maxlength="40" placeholder="Calendar"></label>
-<label>Families<input id="nav-families" maxlength="40" placeholder="Families"></label>
+<label>Parent Resources<input id="nav-families" maxlength="40" placeholder="Parent Resources"></label>
 <button class="btn p" type="submit">Save tab names</button>
 <p class="msg" id="navMsg"></p>
 </form>
@@ -130,16 +155,17 @@ I'm about 6'4".</textarea></label>
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,fmtPosted,fmtTime,fmtRange,eventEnd,newsDateInput,todayStr,esc,driveImgUrl,loadEvents,EVENT_TYPES,EVENT_TYPE_LABELS} from "./fb.js?v=20261123e";
+import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadResources,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,fmtPosted,fmtTime,fmtRange,eventEnd,newsDateInput,todayStr,esc,driveImgUrl,loadEvents,EVENT_TYPES,EVENT_TYPE_LABELS} from "./fb.js?v=20261123f";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp,deleteField,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
 $("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
 let editing=null, items=[];
 
-const TABS=["assignments","news","coming","homepage","meet","nav"];
+const TABS=["assignments","news","coming","homepage","meet","families","nav"];
 function setTab(id){
   if(id==="calendar") id="coming";
+  if(id==="resources") id="families";
   if(!TABS.includes(id)) id="assignments";
   for(const t of TABS){
     const on=t===id;
@@ -196,7 +222,7 @@ $("meetPhotoRemove").onclick=()=>{ meetPhotoClear=true; showThumb("meetThumb","m
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
   $("signedOut").hidden=!!u; $("signedIn").hidden=!u;
-  if(u){ $("who").textContent=u.email; await refresh(); await nrefresh(); await erefresh(); await fillSettingsAndMeet(); }
+  if(u){ $("who").textContent=u.email; await refresh(); await nrefresh(); await erefresh(); await fillSettingsAndMeet(); await fillResources(); }
 });
 
 async function upload(file){
@@ -332,6 +358,62 @@ $("eform").onsubmit=async ev=>{
     $("eMsg").textContent="Saved! It's live on Calendar."; ereset(); erefresh();
   }catch(err){ console.error(err); $("eMsg").textContent="Couldn't save: "+(err.code||err.message); }
   $("esave").disabled=false;
+};
+
+
+function rLinkRow(label="", url=""){
+  const row=document.createElement("div");
+  row.className="linkrow";
+  row.innerHTML=`<label>Label<input class="rLinkLabel" maxlength="80" placeholder="e.g., Gradebook portal" value="${esc(label)}"></label>
+<label>URL<input class="rLinkUrl" maxlength="300" placeholder="https://…" value="${esc(url)}"></label>
+<button type="button" class="rm" aria-label="Remove link">Remove</button>`;
+  row.querySelector(".rm").onclick=()=>row.remove();
+  $("rLinks").appendChild(row);
+}
+$("rAddLink").onclick=()=>rLinkRow();
+function readLinks(){
+  return Array.from(document.querySelectorAll("#rLinks .linkrow")).map(row=>{
+    const label=row.querySelector(".rLinkLabel").value.trim();
+    const url=row.querySelector(".rLinkUrl").value.trim();
+    return {label, url};
+  }).filter(l=>l.label||l.url);
+}
+function applyResources(data){
+  const c=data.contact||{};
+  $("rEmail").value=c.email||""; $("rHours").value=c.hours||""; $("rReply").value=c.reply||"";
+  $("rPolicies").value=data.policies||""; $("rSupplies").value=data.supplies||""; $("rHelp").value=data.helpAtHome||"";
+  $("rLinks").innerHTML="";
+  const links=Array.isArray(data.links)?data.links:[];
+  if(links.length) links.forEach(l=>rLinkRow(l.label||"", l.url||""));
+  else rLinkRow();
+  const cf=data.conferences||{};
+  $("rConfUrl").value=cf.url||""; $("rConfNote").value=cf.note||"";
+}
+async function fillResources(){
+  let data={};
+  try{ data=await loadResources(); }catch(e){ data={}; }
+  applyResources(data);
+}
+function collectResources(){
+  const links=readLinks();
+  const data={
+    contact:{email:$("rEmail").value.trim(),hours:$("rHours").value.trim(),reply:$("rReply").value.trim()},
+    policies:$("rPolicies").value.trim(),
+    supplies:$("rSupplies").value.trim(),
+    helpAtHome:$("rHelp").value.trim(),
+    links,
+    conferences:{url:$("rConfUrl").value.trim(),note:$("rConfNote").value.trim()},
+    updated:serverTimestamp()
+  };
+  return data;
+}
+$("rform").onsubmit=async e=>{
+  e.preventDefault(); $("rMsg").textContent="Saving…";
+  try{
+    const data=collectResources();
+    await setDoc(doc(db,"settings","resources"),data,{merge:true});
+    $("rMsg").textContent="Saved! It's live on Parent Resources.";
+  }catch(err){ console.error(err); $("rMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };
 
 $("navform").onsubmit=async e=>{
