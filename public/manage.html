@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Manage · Mr. Young</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123"></head><body>
+<link rel="stylesheet" href="style.css?v=20261123b"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
 <ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
 <main class="page">
@@ -57,7 +57,14 @@
 <label>3rd Nine Weeks overview<textarea id="q3"></textarea></label>
 <label>4th Nine Weeks overview<textarea id="q4"></textarea></label>
 <label>Now reading<input id="nowReading" maxlength="120" placeholder="e.g., Freak the Mighty"></label>
-<label>Your photo<input id="photo" type="file" accept="image/*"></label>
+<label>A short note about what you're reading (optional)<input id="nowReadingNote" maxlength="200" placeholder="e.g., We'll finish this week"></label>
+<label>Homepage photo<input id="photo" type="file" accept="image/*"></label>
+<div class="photoprev" id="homePhotoBox">
+  <div class="photoprev-empty" id="homePhotoEmpty">No photo yet</div>
+  <img id="homeThumb" alt="Current homepage photo" hidden>
+  <button type="button" class="btn s" id="homePhotoRemove" hidden>Remove photo</button>
+</div>
+<p class="msg" id="homePhotoStatus"></p>
 <button class="btn p" type="submit">Save</button>
 <p class="msg" id="sMsg"></p>
 </form>
@@ -66,7 +73,14 @@
 <div class="tpanel" id="tab-meet" role="tabpanel" aria-labelledby="tabbtn-meet" hidden>
 <form class="form" id="meetform">
 <h2 style="font-family:'Space Grotesk';font-size:22px" data-nav-heading="meet">Meet Mr. Young</h2>
-<p class="sub" style="margin:0 0 6px;font-weight:400">Edit the text families see on the Meet Mr. Young page. Your photo is set on the Homepage tab.</p>
+<p class="sub" style="margin:0 0 6px;font-weight:400">Edit the text families see on the Meet Mr. Young page. You can upload a photo just for this page, or leave it blank to use the Homepage photo.</p>
+<label>Meet page photo<input id="meetPhoto" type="file" accept="image/*"></label>
+<div class="photoprev" id="meetPhotoBox">
+  <div class="photoprev-empty" id="meetPhotoEmpty">No photo yet</div>
+  <img id="meetThumb" alt="Current Meet page photo" hidden>
+  <button type="button" class="btn s" id="meetPhotoRemove" hidden>Remove photo</button>
+</div>
+<p class="msg" id="meetPhotoStatus"></p>
 <label>Hello / intro<textarea id="meetIntro">Hello! I'm Mr. Young, and I'm glad you're here. I teach 7th Grade English Language Arts and Reading, and this page is a little about who I am, how I teach, and what you can expect in our class.</textarea></label>
 <label>About me<textarea id="meetAbout">I was born and raised in San Antonio, Texas, and this city will always feel like home. I care about building a classroom where students feel known, supported, and ready to grow.</textarea></label>
 <label>Education<textarea id="meetEdu">I am a graduate of The University of Texas at San Antonio with my B.A. in Education and a Concentration in English Language Arts and Social Studies. I am a member of the NISD family and completed my yearlong student teaching within the district.</textarea></label>
@@ -101,9 +115,9 @@ I'm about 6'4".</textarea></label>
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,esc} from "./fb.js?v=20261123";
+import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,esc} from "./fb.js?v=20261123b";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp,deleteField} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
 $("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
 let editing=null, items=[];
@@ -143,15 +157,26 @@ async function folderId(tok){
 $("signin").onclick=async()=>{ $("authMsg").textContent=""; try{ keepToken(await signInWithPopup(auth,provider())); }catch(e){ $("authMsg").textContent="Sign-in didn't complete: "+e.code; } };
 $("signout").onclick=e=>{e.preventDefault(); signOut(auth);};
 
+let homePhotoClear=false, meetPhotoClear=false;
+function showThumb(thumbId, emptyId, removeId, url){
+  const thumb=$(thumbId), empty=$(emptyId), rm=$(removeId);
+  if(url){ thumb.src=url; thumb.hidden=false; empty.hidden=true; rm.hidden=false; }
+  else { thumb.removeAttribute("src"); thumb.hidden=true; empty.hidden=false; rm.hidden=true; }
+}
 async function fillSettingsAndMeet(){
-  const s=await loadSettings(); $("nowReading").value=s.nowReading||""; $("currentQuarter").value=String(s.currentQuarter||1); $("quarter").value=String(s.currentQuarter||1); for(const k of ["q1","q2","q3","q4"]) $(k).value=s[k]||"";
+  const s=await loadSettings(); $("nowReading").value=s.nowReading||""; $("nowReadingNote").value=s.nowReadingNote||""; $("currentQuarter").value=String(s.currentQuarter||1); $("quarter").value=String(s.currentQuarter||1); for(const k of ["q1","q2","q3","q4"]) $(k).value=s[k]||"";
+  homePhotoClear=false; $("homePhotoStatus").textContent=""; showThumb("homeThumb","homePhotoEmpty","homePhotoRemove",s.photoUrl||"");
   const m=await loadMeet();
   const map={meetIntro:"intro",meetAbout:"about",meetEdu:"education",meetPhil:"philosophy",meetExpect:"expect",meetFacts:"funFacts",meetContact:"contact"};
   for(const [id,key] of Object.entries(map)){ if(m[key]) $(id).value=m[key]; }
+  meetPhotoClear=false; $("meetPhotoStatus").textContent=""; showThumb("meetThumb","meetPhotoEmpty","meetPhotoRemove",m.photoUrl||"");
   const nav=await loadNav();
   for(const k of NAV_KEYS) $("nav-"+k).value=nav[k];
   applyNav(nav);
 }
+$("homePhotoRemove").onclick=()=>{ homePhotoClear=true; showThumb("homeThumb","homePhotoEmpty","homePhotoRemove",""); $("homePhotoStatus").textContent="Photo will be removed when you click Save."; };
+$("meetPhotoRemove").onclick=()=>{ meetPhotoClear=true; showThumb("meetThumb","meetPhotoEmpty","meetPhotoRemove",""); $("meetPhotoStatus").textContent="Photo will be removed when you click Save. The Homepage photo will be used instead, if you have one."; $("meetPhotoEmpty").textContent="No photo yet"; };
+
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
   $("signedOut").hidden=!!u; $("signedIn").hidden=!u;
@@ -217,17 +242,27 @@ $("nform").onsubmit=async e=>{
 };
 $("sform").onsubmit=async e=>{
   e.preventDefault(); $("sMsg").textContent="Saving…";
-  try{ const data={nowReading:$("nowReading").value.trim(),currentQuarter:Number($("currentQuarter").value),q1:$("q1").value.trim(),q2:$("q2").value.trim(),q3:$("q3").value.trim(),q4:$("q4").value.trim()}; const p=$("photo").files[0];
+  try{ const data={nowReading:$("nowReading").value.trim(),nowReadingNote:$("nowReadingNote").value.trim(),currentQuarter:Number($("currentQuarter").value),q1:$("q1").value.trim(),q2:$("q2").value.trim(),q3:$("q3").value.trim(),q4:$("q4").value.trim()}; const p=$("photo").files[0];
     if(p) data.photoUrl=(await upload(p)).imageUrl;
+    else if(homePhotoClear) data.photoUrl=deleteField();
     await setDoc(doc(db,"settings","home"),data,{merge:true}); $("sMsg").textContent="Saved!"; $("photo").value="";
+    if(p) showThumb("homeThumb","homePhotoEmpty","homePhotoRemove",data.photoUrl);
+    else if(homePhotoClear) showThumb("homeThumb","homePhotoEmpty","homePhotoRemove","");
+    homePhotoClear=false; $("homePhotoStatus").textContent="";
   }catch(err){ console.error(err); $("sMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };
 $("meetform").onsubmit=async e=>{
   e.preventDefault(); $("meetMsg").textContent="Saving…";
   try{
     const data={intro:$("meetIntro").value.trim(),about:$("meetAbout").value.trim(),education:$("meetEdu").value.trim(),philosophy:$("meetPhil").value.trim(),expect:$("meetExpect").value.trim(),funFacts:$("meetFacts").value.trim(),contact:$("meetContact").value.trim(),updated:serverTimestamp()};
+    const p=$("meetPhoto").files[0];
+    if(p) data.photoUrl=(await upload(p)).imageUrl;
+    else if(meetPhotoClear) data.photoUrl=deleteField();
     await setDoc(doc(db,"settings","meet"),data,{merge:true});
-    $("meetMsg").textContent="Saved! It's live on Meet Mr. Young.";
+    $("meetMsg").textContent="Saved! It's live on Meet Mr. Young."; $("meetPhoto").value="";
+    if(p) showThumb("meetThumb","meetPhotoEmpty","meetPhotoRemove",data.photoUrl);
+    else if(meetPhotoClear){ showThumb("meetThumb","meetPhotoEmpty","meetPhotoRemove",""); $("meetPhotoEmpty").textContent="No photo yet"; }
+    meetPhotoClear=false; $("meetPhotoStatus").textContent="";
   }catch(err){ console.error(err); $("meetMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };
 $("navform").onsubmit=async e=>{
