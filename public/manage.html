@@ -3,13 +3,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
-<ul><li><a href="index.html">Home</a></li><li><a href="assignments.html">Assignments</a></li><li><a href="news.html">Weekly News</a></li><li>Coming Up</li><li>Families</li></ul></nav>
+<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
 <main class="page">
 <div class="eyebrow">Teacher only</div>
 <h1>Manage</h1>
 <div id="signedOut"><p class="sub">Sign in with your Google account to add and edit assignments.</p><br><button class="btn p" id="signin">Sign in with Google</button><p class="msg" id="authMsg"></p></div>
 <div id="signedIn" hidden>
-<p class="sub">Signed in as <b id="who"></b> · <a href="#" id="signout" style="text-decoration:underline">Sign out</a></p><br>
+<p class="sub">Signed in as <b id="who"></b> · <a href="#" id="signout" style="text-decoration:underline">Sign out</a></p>
+<div class="mtabs" role="tablist" aria-label="Manage sections">
+<button class="mtab on" type="button" role="tab" id="tabbtn-assignments" data-tab="assignments" data-nav="assignments" aria-controls="tab-assignments" aria-selected="true">Assignments</button>
+<button class="mtab" type="button" role="tab" id="tabbtn-news" data-tab="news" data-nav="news" aria-controls="tab-news" aria-selected="false">Weekly News</button>
+<button class="mtab" type="button" role="tab" id="tabbtn-homepage" data-tab="homepage" aria-controls="tab-homepage" aria-selected="false">Homepage</button>
+<button class="mtab" type="button" role="tab" id="tabbtn-meet" data-tab="meet" data-nav="meet" aria-controls="tab-meet" aria-selected="false">Meet Mr. Young</button>
+<button class="mtab" type="button" role="tab" id="tabbtn-nav" data-tab="nav" aria-controls="tab-nav" aria-selected="false">Site Tabs</button>
+</div>
+
+<div class="tpanel on" id="tab-assignments" role="tabpanel" aria-labelledby="tabbtn-assignments">
 <form class="form" id="aform">
 <h2 style="font-family:'Space Grotesk';font-size:22px" id="formTitle">Add an assignment</h2>
 <label>Title<input id="title" required maxlength="190" placeholder="e.g., Coat of Arms Project"></label>
@@ -21,6 +30,11 @@
 <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn p" type="submit" id="save">Save assignment</button><button class="btn s" type="button" id="cancel" hidden>Cancel edit</button></div>
 <p class="msg" id="formMsg"></p>
 </form>
+<h2 style="font-family:'Space Grotesk';font-size:22px;margin-bottom:12px">Your assignments</h2>
+<div class="mlist" id="mlist"><div class="empty">Loading assignments…</div></div>
+</div>
+
+<div class="tpanel" id="tab-news" role="tabpanel" aria-labelledby="tabbtn-news" hidden>
 <form class="form" id="nform">
 <h2 style="font-family:'Space Grotesk';font-size:22px" id="nformTitle">Post Weekly News</h2>
 <div class="row"><label>Headline<input id="ntitle" required maxlength="190" placeholder="e.g., Starting our poetry unit!"></label><label>Week of<input id="nweek" type="date" required></label></div>
@@ -30,6 +44,11 @@
 <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn p" type="submit" id="nsave">Post news</button><button class="btn s" type="button" id="ncancel" hidden>Cancel edit</button></div>
 <p class="msg" id="nMsg"></p>
 </form>
+<h2 style="font-family:'Space Grotesk';font-size:22px;margin:8px 0 12px">Your news posts</h2>
+<div class="mlist" id="nlist"><div class="empty">Loading news…</div></div>
+</div>
+
+<div class="tpanel" id="tab-homepage" role="tabpanel" aria-labelledby="tabbtn-homepage" hidden>
 <form class="form" id="sform">
 <h2 style="font-family:'Space Grotesk';font-size:22px">Nine weeks &amp; homepage</h2>
 <label>Current nine weeks (the tab families see first)<select id="currentQuarter"><option value="1">1st Nine Weeks</option><option value="2">2nd Nine Weeks</option><option value="3">3rd Nine Weeks</option><option value="4">4th Nine Weeks</option></select></label>
@@ -42,20 +61,72 @@
 <button class="btn p" type="submit">Save</button>
 <p class="msg" id="sMsg"></p>
 </form>
-<h2 style="font-family:'Space Grotesk';font-size:22px;margin-bottom:12px">Your assignments</h2>
-<div class="mlist" id="mlist"></div>
-<h2 style="font-family:'Space Grotesk';font-size:22px;margin:28px 0 12px">Your news posts</h2>
-<div class="mlist" id="nlist"></div>
+</div>
+
+<div class="tpanel" id="tab-meet" role="tabpanel" aria-labelledby="tabbtn-meet" hidden>
+<form class="form" id="meetform">
+<h2 style="font-family:'Space Grotesk';font-size:22px" data-nav-heading="meet">Meet Mr. Young</h2>
+<p class="sub" style="margin:0 0 6px;font-weight:400">Edit the text families see on the Meet Mr. Young page. Your photo is set on the Homepage tab.</p>
+<label>Hello / intro<textarea id="meetIntro">Hello! I'm Mr. Young, and I'm glad you're here. I teach 7th Grade English Language Arts and Reading, and this page is a little about who I am, how I teach, and what you can expect in our class.</textarea></label>
+<label>About me<textarea id="meetAbout">I was born and raised in San Antonio, Texas, and this city will always feel like home. I care about building a classroom where students feel known, supported, and ready to grow.</textarea></label>
+<label>Education<textarea id="meetEdu">I am a graduate of The University of Texas at San Antonio with my B.A. in Education and a Concentration in English Language Arts and Social Studies. I am a member of the NISD family and completed my yearlong student teaching within the district.</textarea></label>
+<label>How I teach<textarea id="meetPhil">I start with relationships. When we have real rapport, students feel safe enough to try, ask questions, and grow as readers and writers. I also model first: I do, we do, you do. That means I show you how, we practice together, and then you try it on your own. I keep expectations clear and consistent, because every student can grow.</textarea></label>
+<label>What to expect in our class<textarea id="meetExpect">You can count on steady routines, so you always know how class starts and what comes next. We'll read together and on our own, write often, and talk through our ideas in class discussions. I'll be clear about what is due and how to do it well.</textarea></label>
+<label>Fun facts (one per line)<textarea id="meetFacts">I love video games.
+I'm a big fan of reality TV.
+I watch anime.
+I'm fascinated by how technology can help us learn.
+I'm about 6'4".</textarea></label>
+<label>How to contact me<textarea id="meetContact">Contact information will be added here soon. Please check back, or ask in class if you need to reach me in the meantime.</textarea></label>
+<button class="btn p" type="submit">Save Meet Mr. Young</button>
+<p class="msg" id="meetMsg"></p>
+</form>
+</div>
+
+<div class="tpanel" id="tab-nav" role="tabpanel" aria-labelledby="tabbtn-nav" hidden>
+<form class="form" id="navform">
+<h2 style="font-family:'Space Grotesk';font-size:22px">Site Tabs</h2>
+<p class="sub" style="margin:0 0 6px;font-weight:400">Rename the menu labels families see on every page. The links stay the same, and blank fields fall back to the original name.</p>
+<label>Home<input id="nav-home" maxlength="40" placeholder="Home"></label>
+<label>Meet Mr. Young<input id="nav-meet" maxlength="40" placeholder="Meet Mr. Young"></label>
+<label>Assignments<input id="nav-assignments" maxlength="40" placeholder="Assignments"></label>
+<label>Weekly News<input id="nav-news" maxlength="40" placeholder="Weekly News"></label>
+<label>Coming Up<input id="nav-coming" maxlength="40" placeholder="Coming Up"></label>
+<label>Families<input id="nav-families" maxlength="40" placeholder="Families"></label>
+<button class="btn p" type="submit">Save tab names</button>
+<p class="msg" id="navMsg"></p>
+</form>
+</div>
 </div>
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,fmtDue,esc} from "./fb.js";
+import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,esc} from "./fb.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
 $("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
 let editing=null, items=[];
+
+const TABS=["assignments","news","homepage","meet","nav"];
+function setTab(id){
+  if(!TABS.includes(id)) id="assignments";
+  for(const t of TABS){
+    const on=t===id;
+    const btn=$("tabbtn-"+t), panel=$("tab-"+t);
+    if(btn){ btn.classList.toggle("on",on); btn.setAttribute("aria-selected",on); }
+    if(panel){ panel.classList.toggle("on",on); panel.hidden=!on; }
+  }
+  try{ localStorage.setItem("manageTab",id); }catch(e){}
+  if(location.hash.slice(1)!==id) history.replaceState(null,"","#"+id);
+}
+document.querySelector(".mtabs").addEventListener("click",e=>{
+  const b=e.target.closest(".mtab"); if(b) setTab(b.dataset.tab);
+});
+window.addEventListener("hashchange",()=>setTab(location.hash.slice(1)||"assignments"));
+const startTab=location.hash.slice(1) || (localStorage.getItem("manageTab")||"assignments");
+setTab(startTab);
+
 function provider(){ const p=new GoogleAuthProvider(); p.addScope("https://www.googleapis.com/auth/drive.file"); return p; }
 function keepToken(res){ const c=GoogleAuthProvider.credentialFromResult(res); if(c&&c.accessToken) sessionStorage.setItem("gtok",JSON.stringify({t:c.accessToken,exp:Date.now()+50*60e3})); }
 async function driveToken(){
@@ -71,11 +142,22 @@ async function folderId(tok){
 }
 $("signin").onclick=async()=>{ $("authMsg").textContent=""; try{ keepToken(await signInWithPopup(auth,provider())); }catch(e){ $("authMsg").textContent="Sign-in didn't complete: "+e.code; } };
 $("signout").onclick=e=>{e.preventDefault(); signOut(auth);};
+
+async function fillSettingsAndMeet(){
+  const s=await loadSettings(); $("nowReading").value=s.nowReading||""; $("currentQuarter").value=String(s.currentQuarter||1); $("quarter").value=String(s.currentQuarter||1); for(const k of ["q1","q2","q3","q4"]) $(k).value=s[k]||"";
+  const m=await loadMeet();
+  const map={meetIntro:"intro",meetAbout:"about",meetEdu:"education",meetPhil:"philosophy",meetExpect:"expect",meetFacts:"funFacts",meetContact:"contact"};
+  for(const [id,key] of Object.entries(map)){ if(m[key]) $(id).value=m[key]; }
+  const nav=await loadNav();
+  for(const k of NAV_KEYS) $("nav-"+k).value=nav[k];
+  applyNav(nav);
+}
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
   $("signedOut").hidden=!!u; $("signedIn").hidden=!u;
-  if(u){ $("who").textContent=u.email; refresh(); nrefresh(); const s=await loadSettings(); $("nowReading").value=s.nowReading||""; $("currentQuarter").value=String(s.currentQuarter||1); $("quarter").value=String(s.currentQuarter||1); for(const k of ["q1","q2","q3","q4"]) $(k).value=s[k]||""; }
+  if(u){ $("who").textContent=u.email; await refresh(); await nrefresh(); await fillSettingsAndMeet(); }
 });
+
 async function upload(file){
   const tok=await driveToken(), parent=await folderId(tok);
   const form=new FormData();
@@ -139,6 +221,24 @@ $("sform").onsubmit=async e=>{
     if(p) data.photoUrl=(await upload(p)).imageUrl;
     await setDoc(doc(db,"settings","home"),data,{merge:true}); $("sMsg").textContent="Saved!"; $("photo").value="";
   }catch(err){ console.error(err); $("sMsg").textContent="Couldn't save: "+(err.code||err.message); }
+};
+$("meetform").onsubmit=async e=>{
+  e.preventDefault(); $("meetMsg").textContent="Saving…";
+  try{
+    const data={intro:$("meetIntro").value.trim(),about:$("meetAbout").value.trim(),education:$("meetEdu").value.trim(),philosophy:$("meetPhil").value.trim(),expect:$("meetExpect").value.trim(),funFacts:$("meetFacts").value.trim(),contact:$("meetContact").value.trim(),updated:serverTimestamp()};
+    await setDoc(doc(db,"settings","meet"),data,{merge:true});
+    $("meetMsg").textContent="Saved! It's live on Meet Mr. Young.";
+  }catch(err){ console.error(err); $("meetMsg").textContent="Couldn't save: "+(err.code||err.message); }
+};
+$("navform").onsubmit=async e=>{
+  e.preventDefault(); $("navMsg").textContent="Saving…";
+  try{
+    const data={updated:serverTimestamp()};
+    for(const k of NAV_KEYS) data[k]=$("nav-"+k).value.trim()||NAV_DEFAULTS[k];
+    await setDoc(doc(db,"settings","nav"),data,{merge:true});
+    applyNav(data);
+    $("navMsg").textContent="Saved! Tab names are live on the site.";
+  }catch(err){ console.error(err); $("navMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };
 </script>
 </body></html>

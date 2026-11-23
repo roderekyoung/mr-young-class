@@ -20,6 +20,46 @@ export async function loadSettings(){
   const s = await getDoc(doc(db,"settings","home"));
   return s.exists() ? s.data() : {};
 }
+
+export async function loadMeet(){
+  const s = await getDoc(doc(db,"settings","meet"));
+  return s.exists() ? s.data() : {};
+}
+export const NAV_KEYS = ["home","meet","assignments","news","coming","families"];
+export const NAV_DEFAULTS = {home:"Home",meet:"Meet Mr. Young",assignments:"Assignments",news:"Weekly News",coming:"Coming Up",families:"Families"};
+export async function loadNav(){
+  try{
+    const s = await getDoc(doc(db,"settings","nav"));
+    const data = s.exists() ? s.data() : {};
+    const out = {...NAV_DEFAULTS};
+    for(const k of NAV_KEYS){ const v=String(data[k]??"").trim(); if(v) out[k]=v; }
+    return out;
+  }catch(e){ return {...NAV_DEFAULTS}; }
+}
+export function applyNav(nav){
+  const labels = {...NAV_DEFAULTS, ...(nav||{})};
+  document.querySelectorAll("[data-nav]").forEach(el=>{
+    const key=el.dataset.nav;
+    if(labels[key]) el.textContent=labels[key];
+  });
+  document.querySelectorAll("[data-nav-heading]").forEach(el=>{
+    const key=el.dataset.navHeading;
+    if(!labels[key]) return;
+    if(key==="meet" && el.tagName==="H1"){
+      const m=labels[key].match(/^Meet\s+(.+)$/i);
+      el.innerHTML = m ? `Meet <span class="grad">${esc(m[1])}</span>` : esc(labels[key]);
+    }else{
+      el.textContent=labels[key];
+    }
+  });
+  const titleEl=document.querySelector("title");
+  const page=document.body && document.body.dataset.navPage;
+  if(titleEl && page && labels[page]){
+    if(page==="meet") titleEl.textContent=labels.meet+" · 7th Grade ELAR";
+    else if(page==="assignments") titleEl.textContent=labels.assignments+" · Mr. Young";
+    else if(page==="news") titleEl.textContent=labels.news+" · Mr. Young";
+  }
+}
 export function todayStr(){ const t=new Date(); return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0"); }
 export function fmtDue(due){
   if(!due) return "";

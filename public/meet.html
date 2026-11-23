@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meet Mr. Young · 7th Grade ELAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body data-nav-page="meet">
+<nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
+<ul><li><a href="index.html" data-nav="home">Home</a></li><li class="on"><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
+<main class="page">
+<div class="eyebrow">7th Grade ELA/R</div>
+<h1 data-nav-heading="meet">Meet <span class="grad">Mr. Young</span></h1>
+<p class="sub">A little about me, how I teach, and what you can expect in our class.</p>
+
+<div class="meet-hero-row">
+  <div class="meet-photo ph" id="meetPhotoWrap">
+    <img id="teacherPhoto" src="images/teacher.jpg" alt="Mr. Young" onload="this.parentElement.classList.remove('ph')" onerror="this.remove();document.getElementById('meetPhotoWrap').classList.add('ph')">
+    <div class="ph-label"><span class="ph-mark">MY</span>Mr. Young</div>
+  </div>
+  <article class="mcard intro-card">
+    <div class="n">Hello</div>
+    <h2>Nice to meet you</h2>
+    <p id="meetIntro">Hello! I'm Mr. Young, and I'm glad you're here. I teach 7th Grade English Language Arts and Reading, and this page is a little about who I am, how I teach, and what you can expect in our class.</p>
+    <div class="bar" style="background:#c5b358"></div>
+  </article>
+</div>
+
+<div class="meet-grid">
+  <article class="mcard">
+    <div class="n">01</div>
+    <h2>About me</h2>
+    <p id="meetAbout">I was born and raised in San Antonio, Texas, and this city will always feel like home. I care about building a classroom where students feel known, supported, and ready to grow.</p>
+    <div class="bar" style="background:#c5b358"></div>
+  </article>
+  <article class="mcard">
+    <div class="n">02</div>
+    <h2>Education</h2>
+    <p id="meetEdu">I am a graduate of The University of Texas at San Antonio with my B.A. in Education and a Concentration in English Language Arts and Social Studies. I am a member of the NISD family and completed my yearlong student teaching within the district.</p>
+    <div class="bar" style="background:#d4c27a"></div>
+  </article>
+  <article class="mcard wide">
+    <div class="n">03</div>
+    <h2>How I teach</h2>
+    <p id="meetPhil">I start with relationships. When we have real rapport, students feel safe enough to try, ask questions, and grow as readers and writers. I also model first: I do, we do, you do. That means I show you how, we practice together, and then you try it on your own. I keep expectations clear and consistent, because every student can grow.</p>
+    <div class="bar" style="background:#0a0a0a"></div>
+  </article>
+  <article class="mcard">
+    <div class="n">04</div>
+    <h2>What to expect in our class</h2>
+    <p id="meetExpect">You can count on steady routines, so you always know how class starts and what comes next. We'll read together and on our own, write often, and talk through our ideas in class discussions. I'll be clear about what is due and how to do it well.</p>
+    <div class="bar" style="background:#c5b358"></div>
+  </article>
+  <article class="mcard">
+    <div class="n">05</div>
+    <h2>A few fun facts</h2>
+    <ul id="meetFacts">
+      <li>I love video games.</li>
+      <li>I'm a big fan of reality TV.</li>
+      <li>I watch anime.</li>
+      <li>I'm fascinated by how technology can help us learn.</li>
+      <li>I'm about 6'4&quot;.</li>
+    </ul>
+    <div class="bar" style="background:#d4c27a"></div>
+  </article>
+  <article class="mcard wide">
+    <div class="n">06</div>
+    <h2>How to contact me</h2>
+    <p id="meetContact">Contact information will be added here soon. Please check back, or ask in class if you need to reach me in the meantime.</p>
+    <div class="bar" style="background:#6e6128"></div>
+  </article>
+</div>
+</main>
+<footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
+<script type="module">
+import {loadMeet,loadSettings,loadNav,applyNav,esc} from "./fb.js";
+const setText=(id,val)=>{ if(val) document.getElementById(id).textContent=val; };
+try{
+  const [meet,set,nav]=await Promise.all([loadMeet(),loadSettings(),loadNav()]);
+  applyNav(nav);
+  setText("meetIntro",meet.intro);
+  setText("meetAbout",meet.about);
+  setText("meetEdu",meet.education);
+  setText("meetPhil",meet.philosophy);
+  setText("meetExpect",meet.expect);
+  setText("meetContact",meet.contact);
+  if(meet.funFacts){
+    const lines=meet.funFacts.split("\n").map(s=>s.trim()).filter(Boolean);
+    if(lines.length) document.getElementById("meetFacts").innerHTML=lines.map(l=>`<li>${esc(l)}</li>`).join("");
+  }
+  const photo=meet.photoUrl||set.photoUrl;
+  if(photo){
+    const wrap=document.getElementById("meetPhotoWrap");
+    wrap.classList.add("ph");
+    wrap.innerHTML=`<img id="teacherPhoto" src="${esc(photo)}" alt="Mr. Young" onload="this.parentElement.classList.remove('ph')" onerror="this.remove();document.getElementById('meetPhotoWrap').classList.add('ph')">
+    <div class="ph-label"><span class="ph-mark">MY</span>Mr. Young</div>`;
+  }
+}catch(e){console.warn(e)}
+</script>
+</body></html>

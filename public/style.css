@@ -137,3 +137,41 @@ a.card{display:block;transition:transform .15s}a.card:hover{transform:translateY
 .side .facts{padding:0;grid-template-columns:1fr 1fr}
 .side .about{padding:14px 0 0}
 @media (max-width:760px){.mbody{grid-template-columns:1fr}.doc,.doc iframe{min-height:360px}.atable th:nth-child(4),.atable td:nth-child(4){display:none}.atable td,.atable th{padding:11px 10px}}
+
+
+/* Meet Mr. Young */
+.meet-hero-row{display:grid;grid-template-columns:280px 1fr;gap:22px;align-items:stretch;margin:28px 0 18px}
+.meet-photo{position:relative;width:100%;aspect-ratio:4/5;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#0a0a0a,#24211a);border:1px solid var(--line);box-shadow:0 20px 40px rgba(15,23,42,.08)}
+.meet-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.meet-photo .ph-label{display:none}
+.meet-photo.ph{border:3px solid #c5b358}
+.meet-photo.ph .ph-label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;position:absolute;inset:0;color:#d4c27a;font-family:'Space Grotesk';font-weight:700;font-size:26px;letter-spacing:-.02em}
+.ph-mark{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0a0a0a;display:grid;place-items:center;font-size:22px}
+.meet-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mcard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column}
+.mcard .n{font-family:'Space Grotesk';font-size:13px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.mcard h2{font-family:'Space Grotesk';font-size:22px;margin:8px 0 10px;line-height:1.2}
+.mcard p{font-size:15px;line-height:1.7;color:#334155;white-space:pre-wrap}
+.mcard ul{margin:0;padding-left:1.15em;color:#334155;font-size:15px;line-height:1.75}
+.mcard li::marker{color:#c5b358}
+.mcard.wide{grid-column:1/-1}
+.mcard .bar{height:4px;width:36px;border-radius:4px;margin-top:auto;padding-top:16px}
+.intro-card{display:flex;flex-direction:column;justify-content:center}
+@media (max-width:760px){
+  .meet-hero-row,.meet-grid{grid-template-columns:1fr}
+  .meet-photo{max-width:280px;margin:0 auto}
+  .mcard.wide{grid-column:auto}
+}
+
+/* Manage tabs */
+.mtabs{display:flex;gap:6px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;margin:18px 0 24px;max-width:720px}
+.mtabs::-webkit-scrollbar{display:none}
+.mtab{flex:none;padding:10px 16px;border:0;border-radius:10px;background:transparent;font:inherit;font-weight:700;font-size:14px;color:var(--muted);cursor:pointer}
+.mtab.on{background:var(--ink);color:#d4c27a}
+.mtab:focus-visible{outline:2px solid #c5b358;outline-offset:2px}
+.tpanel{display:none}
+.tpanel.on{display:block}
+@media (max-width:1100px){
+  nav ul{max-width:100%;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  nav ul::-webkit-scrollbar{display:none}
+}
