@@ -12,7 +12,27 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "site": "mr-young-class"
+    "site": "mr-young-class",
+    "headers": [
+      {
+        "source": "**/*.@(html|css|js)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
+    ]
   },
   "auth": {
     "providers": {
