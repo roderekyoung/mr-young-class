@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mr. Young · 7th Grade ELAR</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123c"></head><body>
+<link rel="stylesheet" href="style.css?v=20261123e"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
-<ul><li class="on"><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
+<ul><li class="on"><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li><a href="calendar.html" data-nav="coming">Calendar</a></li><li data-nav="families">Families</li></ul></nav>
 <section class="hero"><div>
 <div class="eyebrow">Welcome, families</div>
 <h1>7th Grade <span class="grad">English Language Arts &amp; Reading</span></h1>
@@ -30,12 +30,12 @@
 <section class="grid">
 <a class="card" href="assignments.html"><div class="n">01</div><h3>Assignments</h3><p>What it is, what's required, the due date, and an example.</p><div class="bar" style="background:#c5b358"></div></a>
 <a class="card" href="news.html"><div class="n">02</div><h3>Weekly News</h3><p>What we're reading, class wins, and reminders.</p><div class="bar" style="background:#d4c27a"></div></a>
-<div class="card"><div class="n">03</div><h3>Coming Up</h3><p>Due dates and events on one calendar.</p><div class="bar" style="background:#0a0a0a"></div></div>
+<a class="card" href="calendar.html"><div class="n">03</div><h3 data-nav-heading="coming">Calendar</h3><p>Due dates and events on one calendar.</p><div class="bar" style="background:#0a0a0a"></div></a>
 <div class="card"><div class="n">04</div><h3>Families</h3><p>Tips for helping at home, in English y en español.</p><div class="bar" style="background:#6e6128"></div></div>
 </section>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {loadAssignments,loadSettings,loadNav,applyNav,todayStr,fmtDue,esc,driveImgUrl} from "./fb.js?v=20261123c";
+import {loadAssignments,loadSettings,loadNav,applyNav,todayStr,fmtDue,esc,driveImgUrl} from "./fb.js?v=20261123e";
 try{
   const [list,set,nav]=await Promise.all([loadAssignments(),loadSettings(),loadNav()]);
   applyNav(nav);

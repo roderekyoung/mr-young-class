@@ -19,6 +19,18 @@ service cloud.firestore {
         && request.resource.data.week is string;
       allow delete: if isTeacher();
     }
+    match /events/{id} {
+      allow read: if true;
+      allow create, update: if isTeacher()
+        && request.resource.data.title is string && request.resource.data.title.size() > 0 && request.resource.data.title.size() < 200
+        && request.resource.data.date is string
+        && request.resource.data.type in ['test','event','noschool','deadline']
+        && (!('endDate' in request.resource.data)
+            || (request.resource.data.endDate is string
+                && request.resource.data.endDate.size() > 0
+                && request.resource.data.endDate >= request.resource.data.date));
+      allow delete: if isTeacher();
+    }
     match /settings/{id} {
       allow read: if true;
       allow write: if isTeacher();

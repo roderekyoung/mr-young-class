@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calendar · Mr. Young</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261123e"></head><body data-nav-page="coming">
+<nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
+<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li class="on"><a href="calendar.html" data-nav="coming">Calendar</a></li><li data-nav="families">Families</li></ul></nav>
+<main class="page">
+<div class="eyebrow">7th Grade ELA/R</div>
+<h1 data-nav-heading="coming">Calendar</h1>
+<p class="sub">Due dates and events on one calendar.</p>
+
+<div class="cal-toolbar">
+  <div class="cal-toggle" role="tablist" aria-label="Calendar view">
+    <button type="button" class="cal-tog" id="viewMonth" aria-pressed="true">Month</button>
+    <button type="button" class="cal-tog" id="viewList" aria-pressed="false">Next 2 weeks</button>
+  </div>
+  <div class="cal-monthnav" id="monthNav">
+    <button type="button" class="cal-mbtn" id="prevMonth" aria-label="Previous month">‹</button>
+    <h2 id="monthLabel">…</h2>
+    <button type="button" class="cal-mbtn" id="nextMonth" aria-label="Next month">›</button>
+  </div>
+</div>
+
+<div class="cal-legend" aria-label="Color key">
+  <span class="cal-leg"><i class="k-assignment"></i>Assignments</span>
+  <span class="cal-leg"><i class="k-test"></i>Tests</span>
+  <span class="cal-leg"><i class="k-event"></i>School events</span>
+  <span class="cal-leg"><i class="k-deadline"></i>Deadlines</span>
+  <span class="cal-leg"><i class="k-noschool"></i>No school</span>
+</div>
+
+<div id="monthView" class="cal-wrap"></div>
+<div id="listView" class="cal-list" hidden></div>
+</main>
+<footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
+<script type="module">
+import {loadAssignments,loadEvents,loadNav,applyNav,todayStr,fmtDue,fmtLong,fmtTime,fmtRange,eventEnd,datesInRange,addDaysYmd,esc,EVENT_TYPE_LABELS} from "./fb.js?v=20261123e";
+
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const params=new URLSearchParams(location.search);
+const today=todayStr();
+
+function ymd(y,m,d){ return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); }
+
+function asItems(assignments, events){
+  const out=[];
+  for(const a of assignments){
+    if(!a.due) continue;
+    out.push({id:a.id, source:"assignment", type:"assignment", date:a.due, endDate:a.due, title:a.title, note:a.type||"", href:"assignments.html"});
+  }
+  for(const e of events){
+    if(!e.date) continue;
+    out.push({id:e.id, source:"event", type:e.type||"event", date:e.date, endDate:eventEnd(e), title:e.title, time:e.time||"", note:e.note||""});
+  }
+  out.sort((a,b)=> (a.date+(a.time||"")).localeCompare(b.date+(b.time||"")) || a.title.localeCompare(b.title));
+  return out;
+}
+
+function isPast(it){ return eventEnd(it)<today; }
+
+function pill(it){
+  const past=isPast(it)?" is-past":"";
+  const time=it.time?` <em>${esc(fmtTime(it.time))}</em>`:"";
+  const inner=`<span class="cal-dot t-${esc(it.type)}"></span><span class="cal-ptitle">${esc(it.title)}</span>${time}`;
+  if(it.href) return `<a class="cal-pill t-${esc(it.type)}${past}" href="${esc(it.href)}">${inner}</a>`;
+  return `<div class="cal-pill t-${esc(it.type)}${past}">${inner}</div>`;
+}
+
+function renderMonth(items, year, month){
+  const label=new Date(year,month,1).toLocaleDateString("en-US",{month:"long",year:"numeric"});
+  document.getElementById("monthLabel").textContent=label;
+  const first=new Date(year,month,1);
+  const start=first.getDay();
+  const dim=new Date(year,month+1,0).getDate();
+  const prevDim=new Date(year,month,0).getDate();
+  const cells=[];
+  for(let i=0;i<start;i++){
+    const d=prevDim-start+i+1;
+    const date=ymd(month===0?year-1:year, month===0?11:month-1, d);
+    cells.push({date, num:d, out:true});
+  }
+  for(let d=1;d<=dim;d++) cells.push({date:ymd(year,month,d), num:d, out:false});
+  while(cells.length%7){
+    const d=cells.length-start-dim+1;
+    const date=ymd(month===11?year+1:year, month===11?0:month+1, d);
+    cells.push({date, num:d, out:true});
+  }
+  const by={};
+  for(const it of items){
+    for(const day of datesInRange(it.date, it.endDate||it.date)){
+      (by[day]||(by[day]=[])).push(it);
+    }
+  }
+  const monthHas=cells.some(c=>!c.out && (by[c.date]||[]).length);
+  const head=DOW.map(d=>`<div class="cal-dow">${d}</div>`).join("");
+  const body=cells.map(c=>{
+    const list=by[c.date]||[];
+    const isToday=c.date===today;
+    const cls=["cal-day", c.out?"is-out":"", isToday?"is-today":"", c.date<today?"is-past-day":""].filter(Boolean).join(" ");
+    const more=list.length>3?`<div class="cal-more">+${list.length-3} more</div>`:"";
+    return `<div class="${cls}" data-date="${c.date}">
+      <div class="cal-num">${c.num}</div>
+      <div class="cal-items">${list.slice(0,3).map(pill).join("")}${more}</div>
+    </div>`;
+  }).join("");
+  const empty=(!items.length || !monthHas)?`<div class="empty" style="border:0;border-top:1px solid var(--line);border-radius:0">Nothing on the calendar this month yet.</div>`:"";
+  document.getElementById("monthView").innerHTML=`<div class="cal-grid">${head}${body}</div>${empty}`;
+}
+
+function renderList(items){
+  const windowEnd=addDaysYmd(today,13);
+  const upcoming=items.filter(it=> eventEnd(it)>=today && it.date<=windowEnd);
+  const wrap=document.getElementById("listView");
+  if(!upcoming.length){
+    wrap.innerHTML=`<div class="empty">Nothing on the calendar in the next two weeks. Check back soon!</div>`;
+    return;
+  }
+  const groups=[];
+  for(const it of upcoming){
+    const key=it.date<today?today:it.date;
+    const last=groups[groups.length-1];
+    if(!last || last.date!==key) groups.push({date:key, items:[it]});
+    else last.items.push(it);
+  }
+  wrap.innerHTML=groups.map(g=>`
+    <section class="cal-lgroup">
+      <h3>${esc(fmtLong(g.date))}${g.date===today?` <span class="cal-todayflag">Today</span>`:""}</h3>
+      <div class="cal-litems">${g.items.map(it=>`
+        <${it.href?"a":"div"} class="cal-lrow t-${esc(it.type)}${isPast(it)?" is-past":""}" ${it.href?`href="${esc(it.href)}"`:""}>
+          <span class="cal-lbodge t-${esc(it.type)}">${esc(EVENT_TYPE_LABELS[it.type]||it.type)}</span>
+          <div class="cal-lbody">
+            <b>${esc(it.title)}</b>
+            <span class="cal-lmeta">${esc(fmtRange(it.date, it.endDate||it.date))}${it.time?" · "+esc(fmtTime(it.time)):""}${it.source==="assignment" && it.note?" · "+esc(it.note):""}</span>
+            ${it.source==="event" && it.note?`<p>${esc(it.note)}</p>`:""}
+          </div>
+        </${it.href?"a":"div"}>
+      `).join("")}</div>
+    </section>`).join("");
+}
+
+let items=[], viewYear, viewMonth, view;
+
+function setView(next){
+  view=next;
+  const monthOn=view==="month";
+  document.getElementById("viewMonth").classList.toggle("on", monthOn);
+  document.getElementById("viewList").classList.toggle("on", !monthOn);
+  document.getElementById("viewMonth").setAttribute("aria-pressed", monthOn);
+  document.getElementById("viewList").setAttribute("aria-pressed", !monthOn);
+  document.getElementById("monthView").hidden=!monthOn;
+  document.getElementById("monthNav").hidden=!monthOn;
+  document.getElementById("listView").hidden=monthOn;
+}
+
+function paint(){
+  renderMonth(items, viewYear, viewMonth);
+  renderList(items);
+}
+
+document.getElementById("viewMonth").onclick=()=>setView("month");
+document.getElementById("viewList").onclick=()=>setView("list");
+document.getElementById("prevMonth").onclick=()=>{ if(--viewMonth<0){ viewMonth=11; viewYear--; } paint(); };
+document.getElementById("nextMonth").onclick=()=>{ if(++viewMonth>11){ viewMonth=0; viewYear++; } paint(); };
+
+const now=new Date();
+viewYear=now.getFullYear();
+viewMonth=now.getMonth();
+const qMonth=params.get("month");
+if(qMonth && /^\d{4}-\d{2}$/.test(qMonth)){
+  const [y,m]=qMonth.split("-").map(Number);
+  viewYear=y; viewMonth=m-1;
+}
+const qView=params.get("view");
+const startView = qView==="list" || qView==="month" ? qView : (window.innerWidth<700?"list":"month");
+setView(startView);
+
+try{
+  const [asg, ev, nav]=await Promise.all([loadAssignments(), loadEvents(), loadNav()]);
+  applyNav(nav);
+  items=asItems(asg, ev);
+  paint();
+}catch(e){
+  console.warn(e);
+  document.getElementById("monthView").innerHTML=`<div class="empty">We couldn't load the calendar just now. Please try again in a moment.</div>`;
+  document.getElementById("listView").innerHTML=`<div class="empty">We couldn't load the calendar just now. Please try again in a moment.</div>`;
+}
+</script>
+</body></html>

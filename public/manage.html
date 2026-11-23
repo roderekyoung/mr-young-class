@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en"><head><meta name="robots" content="noindex"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Manage · Mr. Young</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261123c"></head><body>
+<link rel="stylesheet" href="style.css?v=20261123e"></head><body>
 <nav><a class="logo" href="index.html"><div class="mark">ELA</div>7th Grade ELA/R</a>
-<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li data-nav="coming">Coming Up</li><li data-nav="families">Families</li></ul></nav>
+<ul><li><a href="index.html" data-nav="home">Home</a></li><li><a href="meet.html" data-nav="meet">Meet Mr. Young</a></li><li><a href="assignments.html" data-nav="assignments">Assignments</a></li><li><a href="news.html" data-nav="news">Weekly News</a></li><li><a href="calendar.html" data-nav="coming">Calendar</a></li><li data-nav="families">Families</li></ul></nav>
 <main class="page">
 <div class="eyebrow">Teacher only</div>
 <h1>Manage</h1>
@@ -13,6 +13,7 @@
 <div class="mtabs" role="tablist" aria-label="Manage sections">
 <button class="mtab on" type="button" role="tab" id="tabbtn-assignments" data-tab="assignments" data-nav="assignments" aria-controls="tab-assignments" aria-selected="true">Assignments</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-news" data-tab="news" data-nav="news" aria-controls="tab-news" aria-selected="false">Weekly News</button>
+<button class="mtab" type="button" role="tab" id="tabbtn-coming" data-tab="coming" data-nav="coming" aria-controls="tab-coming" aria-selected="false">Calendar</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-homepage" data-tab="homepage" aria-controls="tab-homepage" aria-selected="false">Homepage</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-meet" data-tab="meet" data-nav="meet" aria-controls="tab-meet" aria-selected="false">Meet Mr. Young</button>
 <button class="mtab" type="button" role="tab" id="tabbtn-nav" data-tab="nav" aria-controls="tab-nav" aria-selected="false">Site Tabs</button>
@@ -46,6 +47,20 @@
 </form>
 <h2 style="font-family:'Space Grotesk';font-size:22px;margin:8px 0 12px">Your news posts</h2>
 <div class="mlist" id="nlist"><div class="empty">Loading news…</div></div>
+</div>
+
+<div class="tpanel" id="tab-coming" role="tabpanel" aria-labelledby="tabbtn-coming" hidden>
+<form class="form" id="eform">
+<h2 style="font-family:'Space Grotesk';font-size:22px" id="eformTitle">Add an event</h2>
+<label>Title<input id="etitle" required maxlength="190" placeholder="e.g., Early Release"></label>
+<div class="row"><label>Date<input id="edate" type="date" required></label><label>End date (optional)<input id="eend" type="date"></label></div>
+<div class="row"><label>Time (optional)<input id="etime" type="time"></label><label>Type<select id="etype" required></select></label></div>
+<label>Note (optional)<textarea id="enote" placeholder="A short note for families, e.g., dismiss at 12:30 p.m."></textarea></label>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn p" type="submit" id="esave">Save event</button><button class="btn s" type="button" id="ecancel" hidden>Cancel edit</button></div>
+<p class="msg" id="eMsg"></p>
+</form>
+<h2 style="font-family:'Space Grotesk';font-size:22px;margin-bottom:12px">Upcoming events</h2>
+<div class="mlist" id="elist"><div class="empty">Loading events…</div></div>
 </div>
 
 <div class="tpanel" id="tab-homepage" role="tabpanel" aria-labelledby="tabbtn-homepage" hidden>
@@ -105,7 +120,7 @@ I'm about 6'4".</textarea></label>
 <label>Meet Mr. Young<input id="nav-meet" maxlength="40" placeholder="Meet Mr. Young"></label>
 <label>Assignments<input id="nav-assignments" maxlength="40" placeholder="Assignments"></label>
 <label>Weekly News<input id="nav-news" maxlength="40" placeholder="Weekly News"></label>
-<label>Coming Up<input id="nav-coming" maxlength="40" placeholder="Coming Up"></label>
+<label>Calendar<input id="nav-coming" maxlength="40" placeholder="Calendar"></label>
 <label>Families<input id="nav-families" maxlength="40" placeholder="Families"></label>
 <button class="btn p" type="submit">Save tab names</button>
 <p class="msg" id="navMsg"></p>
@@ -115,15 +130,16 @@ I'm about 6'4".</textarea></label>
 </main>
 <footer><span>7th Grade ELA/R</span><a class="manage" href="manage.html">Manage</a></footer>
 <script type="module">
-import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,fmtPosted,newsDateInput,todayStr,esc,driveImgUrl} from "./fb.js?v=20261123c";
+import {app,db,TEACHER,TYPES,loadAssignments,loadNews,loadSettings,loadMeet,loadNav,applyNav,NAV_KEYS,NAV_DEFAULTS,fmtDue,fmtPosted,fmtTime,fmtRange,eventEnd,newsDateInput,todayStr,esc,driveImgUrl,loadEvents,EVENT_TYPES,EVENT_TYPE_LABELS} from "./fb.js?v=20261123e";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {collection,addDoc,updateDoc,deleteDoc,doc,setDoc,serverTimestamp,deleteField,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const auth=getAuth(app), $=id=>document.getElementById(id);
 $("type").innerHTML=TYPES.map(t=>`<option>${t}</option>`).join("");
 let editing=null, items=[];
 
-const TABS=["assignments","news","homepage","meet","nav"];
+const TABS=["assignments","news","coming","homepage","meet","nav"];
 function setTab(id){
+  if(id==="calendar") id="coming";
   if(!TABS.includes(id)) id="assignments";
   for(const t of TABS){
     const on=t===id;
@@ -180,7 +196,7 @@ $("meetPhotoRemove").onclick=()=>{ meetPhotoClear=true; showThumb("meetThumb","m
 onAuthStateChanged(auth,async u=>{
   if(u && u.email!==TEACHER){ $("authMsg").textContent="This page is for the teacher only."; await signOut(auth); return; }
   $("signedOut").hidden=!!u; $("signedIn").hidden=!u;
-  if(u){ $("who").textContent=u.email; await refresh(); await nrefresh(); await fillSettingsAndMeet(); }
+  if(u){ $("who").textContent=u.email; await refresh(); await nrefresh(); await erefresh(); await fillSettingsAndMeet(); }
 });
 
 async function upload(file){
@@ -266,6 +282,58 @@ $("meetform").onsubmit=async e=>{
     meetPhotoClear=false; $("meetPhotoStatus").textContent="";
   }catch(err){ console.error(err); $("meetMsg").textContent="Couldn't save: "+(err.code||err.message); }
 };
+
+let eediting=null, eventsList=[];
+$("etype").innerHTML=EVENT_TYPES.map(t=>`<option value="${t.id}">${t.label}</option>`).join("");
+$("etype").value="event";
+$("edate").value=todayStr();
+$("edate").addEventListener("change",()=>{ if($("eend").value && $("eend").value<$("edate").value) $("eend").value=$("edate").value; $("eend").min=$("edate").value; });
+function eventWhen(e){
+  return [e.date?fmtRange(e.date, e.endDate||""):"", e.time?fmtTime(e.time):""].filter(Boolean).join(" · ");
+}
+function eventRow(e){
+  const typ=EVENT_TYPE_LABELS[e.type]||e.type||"";
+  return `<div class="mrow"><div><b>${esc(e.title)}</b><br><small>${esc(typ)} · ${esc(eventWhen(e))}</small></div><div class="acts"><button data-ee="${e.id}">Edit</button><button class="del" data-ed="${e.id}">Delete</button></div></div>`;
+}
+function renderEventList(){
+  const t=todayStr();
+  eventsList.sort((a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||""))||(a.title||"").localeCompare(b.title||""));
+  const upcoming=eventsList.filter(e=>eventEnd(e)>=t);
+  const past=eventsList.filter(e=>eventEnd(e)<t);
+  let html="";
+  if(upcoming.length) html+=upcoming.map(eventRow).join("");
+  else html+='<div class="empty">No upcoming events yet.</div>';
+  if(past.length) html+=`<h2 style="font-family:'Space Grotesk';font-size:18px;margin:18px 0 10px;opacity:.7">Past events</h2>`+past.map(e=>eventRow(e).replace('class="mrow"','class="mrow" style="opacity:.55"')).join("");
+  $("elist").innerHTML=html;
+}
+async function erefresh(){
+  try{ eventsList=await loadEvents(); }
+  catch(e){ eventsList=[]; }
+  renderEventList();
+}
+function ereset(){ eediting=null; $("eform").reset(); $("edate").value=todayStr(); $("eend").value=""; $("eend").min=$("edate").value; $("etype").value="event"; $("eformTitle").textContent="Add an event"; $("esave").textContent="Save event"; $("ecancel").hidden=true; }
+$("ecancel").onclick=ereset;
+$("elist").onclick=async ev=>{
+  const ed=ev.target.dataset.ee, del=ev.target.dataset.ed;
+  if(ed){ const e=eventsList.find(x=>x.id===ed); if(!e) return; eediting=e; $("etitle").value=e.title; $("edate").value=e.date; $("eend").value=e.endDate||""; $("eend").min=e.date; $("etime").value=e.time||""; $("etype").value=e.type||"event"; $("enote").value=e.note||""; $("eformTitle").textContent="Edit event"; $("esave").textContent="Update event"; $("ecancel").hidden=false; $("eform").scrollIntoView({behavior:"smooth"}); }
+  if(del){ const e=eventsList.find(x=>x.id===del); if(!e || !confirm(`Delete "${e.title}"?`)) return; await deleteDoc(doc(db,"events",del)); erefresh(); }
+};
+$("eform").onsubmit=async ev=>{
+  ev.preventDefault(); $("esave").disabled=true; $("eMsg").textContent="Saving…";
+  try{
+    const data={title:$("etitle").value.trim(),date:$("edate").value,time:$("etime").value,note:$("enote").value.trim(),type:$("etype").value,updated:serverTimestamp()};
+    const end=$("eend").value;
+    if(!data.title || !data.date){ $("eMsg").textContent="Title and date are required."; $("esave").disabled=false; return; }
+    if(end && end<data.date){ $("eMsg").textContent="End date has to be on or after the start date."; $("esave").disabled=false; return; }
+    if(end) data.endDate=end;
+    else if(eediting) data.endDate=deleteField();
+    if(eediting) await updateDoc(doc(db,"events",eediting.id),data);
+    else { data.createdAt=serverTimestamp(); await addDoc(collection(db,"events"),data); }
+    $("eMsg").textContent="Saved! It's live on Calendar."; ereset(); erefresh();
+  }catch(err){ console.error(err); $("eMsg").textContent="Couldn't save: "+(err.code||err.message); }
+  $("esave").disabled=false;
+};
+
 $("navform").onsubmit=async e=>{
   e.preventDefault(); $("navMsg").textContent="Saving…";
   try{

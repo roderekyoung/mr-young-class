@@ -26,7 +26,7 @@ export async function loadMeet(){
   return s.exists() ? s.data() : {};
 }
 export const NAV_KEYS = ["home","meet","assignments","news","coming","families"];
-export const NAV_DEFAULTS = {home:"Home",meet:"Meet Mr. Young",assignments:"Assignments",news:"Weekly News",coming:"Coming Up",families:"Families"};
+export const NAV_DEFAULTS = {home:"Home",meet:"Meet Mr. Young",assignments:"Assignments",news:"Weekly News",coming:"Calendar",families:"Families"};
 export async function loadNav(){
   try{
     const s = await getDoc(doc(db,"settings","nav"));
@@ -42,6 +42,8 @@ export function applyNav(nav){
     const key=el.dataset.nav;
     if(labels[key]) el.textContent=labels[key];
   });
+  const on=document.querySelector("nav li.on");
+  if(on) try{ on.scrollIntoView({inline:"nearest",block:"nearest"}); }catch(e){}
   document.querySelectorAll("[data-nav-heading]").forEach(el=>{
     const key=el.dataset.navHeading;
     if(!labels[key]) return;
@@ -58,6 +60,7 @@ export function applyNav(nav){
     if(page==="meet") titleEl.textContent=labels.meet+" · 7th Grade ELAR";
     else if(page==="assignments") titleEl.textContent=labels.assignments+" · Mr. Young";
     else if(page==="news") titleEl.textContent=labels.news+" · Mr. Young";
+    else if(page==="coming") titleEl.textContent=labels.coming+" · Mr. Young";
   }
 }
 export function todayStr(){ const t=new Date(); return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0"); }
@@ -65,6 +68,58 @@ export function fmtDue(due){
   if(!due) return "";
   const [y,m,d]=due.split("-").map(Number); const dt=new Date(y,m-1,d);
   return dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+}
+export function fmtLong(due){
+  if(!due) return "";
+  const [y,m,d]=due.split("-").map(Number); const dt=new Date(y,m-1,d);
+  return dt.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+}
+export function fmtTime(t){
+  if(!t) return "";
+  const parts=String(t).split(":");
+  const h=Number(parts[0]), m=Number(parts[1]||0);
+  if(Number.isNaN(h)) return String(t);
+  const ap=h>=12?"PM":"AM";
+  const hr=((h+11)%12)+1;
+  return hr+":"+String(m).padStart(2,"0")+" "+ap;
+}
+export function eventEnd(e){
+  const start=e.date||e.due||"";
+  const end=e.endDate||"";
+  return (end && end>=start) ? end : start;
+}
+export function fmtRange(start, end){
+  if(!end || end===start) return fmtDue(start);
+  return fmtDue(start)+" – "+fmtDue(end);
+}
+export function addDaysYmd(s,n){
+  const [y,m,d]=String(s).split("-").map(Number);
+  const dt=new Date(y,m-1,d+n);
+  return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+}
+export function datesInRange(start, end){
+  const last=(!end || end<start)?start:end;
+  const out=[];
+  let cur=start;
+  // cap at 400 days so a typo can't hang the page
+  for(let i=0;i<400 && cur<=last;i++){ out.push(cur); cur=addDaysYmd(cur,1); }
+  return out;
+}
+export const EVENT_TYPES = [
+  {id:"event", label:"School event"},
+  {id:"test", label:"Test"},
+  {id:"deadline", label:"Deadline"},
+  {id:"noschool", label:"No school"}
+];
+export const EVENT_TYPE_LABELS = {assignment:"Assignment", test:"Test", event:"School event", noschool:"No school", deadline:"Deadline"};
+export async function loadEvents(){
+  try{
+    const snap = await getDocs(collection(db,"events"));
+    return snap.docs.map(d => ({id:d.id, ...d.data()}));
+  }catch(e){
+    console.warn("events collection unavailable", e);
+    return [];
+  }
 }
 export function dueClass(due){
   const t=todayStr(); if(due<t) return "past";
