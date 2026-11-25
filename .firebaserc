@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "mr-young-class"
-  }
+  },
+  "targets": {
+    "mr-young-class": {
+      "hosting": {
+        "youngela": [
+          "youngela"
+        ],
+        "legacy": [
+          "mr-young-class"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
